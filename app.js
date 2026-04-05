@@ -7,8 +7,12 @@
   var gridApparel = document.getElementById("gridApparel");
   var gridLifestyle = document.getElementById("gridLifestyle");
   var productsSection = document.getElementById("productsSection");
-  var lifestyleBrandStrip = document.getElementById("lifestyleBrandStrip");
+  var lifestyleFiltersRoot = document.getElementById("lifestyleFilters");
+  var lifestyleSortEl = document.getElementById("lifestyleSort");
   var lifestyleBrandFilter = "all";
+  var lifestyleGenderFilter = "all";
+  var lifestyleSizeFilter = "all";
+  var lifestyleTypeFilter = "all";
 
   var searchInput = document.getElementById("searchInput");
   var searchClear = document.getElementById("searchClear");
@@ -320,7 +324,132 @@
     return Array.prototype.slice.call(grid.querySelectorAll(".product-card"));
   }
 
+  function closeAllLifestyleDropdowns() {
+    if (!lifestyleFiltersRoot) return;
+    lifestyleFiltersRoot.querySelectorAll(".lifestyle-filter-panel").forEach(function (p) {
+      p.hidden = true;
+    });
+    lifestyleFiltersRoot.querySelectorAll('[id^="lifestyleTrigger"]').forEach(function (t) {
+      t.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  function markActiveInPanel(panel, attrName, value) {
+    if (!panel) return;
+    panel.querySelectorAll(".lifestyle-filter-option").forEach(function (opt) {
+      var v = opt.getAttribute(attrName);
+      var on = v === value;
+      opt.classList.toggle("lifestyle-filter-option--active", on);
+      opt.setAttribute("aria-selected", on ? "true" : "false");
+    });
+  }
+
+  function updateLifestyleFilterPillStates() {
+    var sortT = document.getElementById("lifestyleTriggerSort");
+    if (sortT) sortT.classList.toggle("lifestyle-filter-pill--dirty", !!(lifestyleSortEl && lifestyleSortEl.value !== "relevance"));
+    var gT = document.getElementById("lifestyleTriggerGender");
+    if (gT) gT.classList.toggle("lifestyle-filter-pill--dirty", lifestyleGenderFilter !== "all");
+    var bT = document.getElementById("lifestyleTriggerBrand");
+    if (bT) bT.classList.toggle("lifestyle-filter-pill--dirty", lifestyleBrandFilter !== "all");
+    var sT = document.getElementById("lifestyleTriggerSize");
+    if (sT) sT.classList.toggle("lifestyle-filter-pill--dirty", lifestyleSizeFilter !== "all");
+    var tyT = document.getElementById("lifestyleTriggerType");
+    if (tyT) tyT.classList.toggle("lifestyle-filter-pill--dirty", lifestyleTypeFilter !== "all");
+  }
+
+  function resetLifestyleFilters() {
+    lifestyleGenderFilter = "all";
+    lifestyleBrandFilter = "all";
+    lifestyleSizeFilter = "all";
+    lifestyleTypeFilter = "all";
+    if (lifestyleSortEl) {
+      lifestyleSortEl.value = "relevance";
+    }
+    markActiveInPanel(document.getElementById("lifestylePanelSort"), "data-sort-value", "relevance");
+    markActiveInPanel(document.getElementById("lifestylePanelGender"), "data-gender-filter", "all");
+    markActiveInPanel(document.getElementById("lifestylePanelBrand"), "data-brand-filter", "all");
+    markActiveInPanel(document.getElementById("lifestylePanelSize"), "data-size-filter", "all");
+    markActiveInPanel(document.getElementById("lifestylePanelType"), "data-type-filter", "all");
+    updateLifestyleFilterPillStates();
+  }
+
+  function applyLifestyleFacets() {
+    if (!gridLifestyle) return;
+    var q = (searchInput && searchInput.value ? searchInput.value : "").trim();
+    var lower = q.toLowerCase();
+    if (searchClear) searchClear.hidden = !q;
+    if (searchResultsTitle) {
+      if (q) {
+        searchResultsTitle.hidden = false;
+        searchResultsTitle.textContent = 'Showing results for "' + q + '"';
+      } else {
+        searchResultsTitle.hidden = true;
+      }
+    }
+    var sortMode = lifestyleSortEl ? lifestyleSortEl.value : "relevance";
+    var cards = Array.prototype.slice.call(gridLifestyle.querySelectorAll(".product-card"));
+    var match = [];
+    var nomatch = [];
+    for (var i = 0; i < cards.length; i++) {
+      var card = cards[i];
+      var name = (card.getAttribute("data-name") || "").toLowerCase();
+      var okSearch = !lower || name.indexOf(lower) !== -1;
+      var b = card.getAttribute("data-brand") || "";
+      var okBrand = lifestyleBrandFilter === "all" || b === lifestyleBrandFilter;
+      var g = card.getAttribute("data-gender") || "";
+      var okGender = lifestyleGenderFilter === "all" || g === lifestyleGenderFilter;
+      var sz = card.getAttribute("data-size") || "";
+      var okSize = lifestyleSizeFilter === "all" || sz === lifestyleSizeFilter;
+      var ty = card.getAttribute("data-type") || "";
+      var okType = lifestyleTypeFilter === "all" || ty === lifestyleTypeFilter;
+      if (okSearch && okBrand && okGender && okSize && okType) {
+        match.push(card);
+      } else {
+        nomatch.push(card);
+      }
+    }
+    function lifestyleCardOos(card) {
+      return card.classList.contains("product-card--out-of-stock");
+    }
+
+    function compareLifestyleSort(a, b) {
+      var ia = parseInt(a.getAttribute("data-catalog-index") || "0", 10);
+      var ib = parseInt(b.getAttribute("data-catalog-index") || "0", 10);
+      var pa = parseFloat(a.getAttribute("data-price") || "0");
+      var pb = parseFloat(b.getAttribute("data-price") || "0");
+      var oa = parseFloat(a.getAttribute("data-off") || "0");
+      var ob = parseFloat(b.getAttribute("data-off") || "0");
+      if (sortMode === "price-asc") return pa - pb;
+      if (sortMode === "price-desc") return pb - pa;
+      if (sortMode === "discount-desc") return ob - oa;
+      return ia - ib;
+    }
+
+    match.sort(function (a, b) {
+      var aOos = lifestyleCardOos(a);
+      var bOos = lifestyleCardOos(b);
+      if (aOos !== bOos) {
+        return aOos ? 1 : -1;
+      }
+      return compareLifestyleSort(a, b);
+    });
+    match.forEach(function (c) {
+      c.style.display = "";
+      gridLifestyle.appendChild(c);
+    });
+    nomatch.forEach(function (c) {
+      c.style.display = "none";
+      gridLifestyle.appendChild(c);
+    });
+  }
+
+  window.applyLifestyleFacets = applyLifestyleFacets;
+
   function applySearchFilter() {
+    if (gridLifestyle) {
+      applyLifestyleFacets();
+      return;
+    }
     var q = (searchInput && searchInput.value ? searchInput.value : "").trim();
     var lower = q.toLowerCase();
     if (searchClear) searchClear.hidden = !q;
@@ -335,25 +464,70 @@
     getVisibleProductCards().forEach(function (card) {
       var name = (card.getAttribute("data-name") || "").toLowerCase();
       var matchSearch = !lower || name.indexOf(lower) !== -1;
-      var matchBrand = true;
-      if (gridLifestyle) {
-        var b = card.getAttribute("data-brand") || "";
-        matchBrand = lifestyleBrandFilter === "all" || b === lifestyleBrandFilter;
-      }
-      card.style.display = matchSearch && matchBrand ? "" : "none";
+      card.style.display = matchSearch ? "" : "none";
     });
   }
 
-  if (lifestyleBrandStrip) {
-    lifestyleBrandStrip.addEventListener("click", function (e) {
-      var chip = e.target.closest("[data-brand-filter]");
-      if (!chip) return;
-      lifestyleBrandFilter = chip.getAttribute("data-brand-filter") || "all";
-      lifestyleBrandStrip.querySelectorAll("[data-brand-filter]").forEach(function (c) {
-        var active = c === chip;
-        c.classList.toggle("brand-chip--active", active);
-        if (c.hasAttribute("aria-selected")) c.setAttribute("aria-selected", active ? "true" : "false");
-      });
+  if (lifestyleFiltersRoot) {
+    lifestyleFiltersRoot.addEventListener("click", function (e) {
+      var opt = e.target.closest(".lifestyle-filter-option");
+      if (opt) {
+        e.preventDefault();
+        var panel = opt.closest(".lifestyle-filter-panel");
+        if (opt.id === "lifestyleResetAllOption") {
+          resetLifestyleFilters();
+          closeAllLifestyleDropdowns();
+          applySearchFilter();
+          return;
+        }
+        if (opt.hasAttribute("data-sort-value")) {
+          var sv = opt.getAttribute("data-sort-value") || "relevance";
+          if (lifestyleSortEl) lifestyleSortEl.value = sv;
+          markActiveInPanel(panel, "data-sort-value", sv);
+        } else if (opt.hasAttribute("data-gender-filter")) {
+          lifestyleGenderFilter = opt.getAttribute("data-gender-filter") || "all";
+          markActiveInPanel(panel, "data-gender-filter", lifestyleGenderFilter);
+        } else if (opt.hasAttribute("data-brand-filter")) {
+          lifestyleBrandFilter = opt.getAttribute("data-brand-filter") || "all";
+          markActiveInPanel(panel, "data-brand-filter", lifestyleBrandFilter);
+        } else if (opt.hasAttribute("data-size-filter")) {
+          lifestyleSizeFilter = opt.getAttribute("data-size-filter") || "all";
+          markActiveInPanel(panel, "data-size-filter", lifestyleSizeFilter);
+        } else if (opt.hasAttribute("data-type-filter")) {
+          lifestyleTypeFilter = opt.getAttribute("data-type-filter") || "all";
+          markActiveInPanel(panel, "data-type-filter", lifestyleTypeFilter);
+        }
+        updateLifestyleFilterPillStates();
+        closeAllLifestyleDropdowns();
+        applySearchFilter();
+        return;
+      }
+
+      var trigger = e.target.closest('[id^="lifestyleTrigger"]');
+      if (trigger) {
+        e.stopPropagation();
+        var dd = trigger.closest(".lifestyle-filter-dd");
+        var p = dd ? dd.querySelector(".lifestyle-filter-panel") : null;
+        if (!p) return;
+        var wasOpen = !p.hidden;
+        closeAllLifestyleDropdowns();
+        if (!wasOpen) {
+          p.hidden = false;
+          trigger.setAttribute("aria-expanded", "true");
+        }
+      }
+    });
+
+    document.addEventListener("click", function (e) {
+      if (!lifestyleFiltersRoot || lifestyleFiltersRoot.contains(e.target)) return;
+      closeAllLifestyleDropdowns();
+    });
+  }
+  if (lifestyleSortEl) {
+    lifestyleSortEl.addEventListener("change", function () {
+      var v = lifestyleSortEl.value;
+      markActiveInPanel(document.getElementById("lifestylePanelSort"), "data-sort-value", v);
+      updateLifestyleFilterPillStates();
       applySearchFilter();
     });
   }
@@ -597,6 +771,8 @@
 
   function initProductCards() {
     document.querySelectorAll(".product-card").forEach(function (card) {
+      if (card.dataset.blinkitCardInited === "1") return;
+      card.dataset.blinkitCardInited = "1";
       var sel = card.querySelector("[data-size-select]");
       if (sel) {
         sel.dataset._lastKey = getLineKey(card);
@@ -627,6 +803,8 @@
       syncCardActions(card);
     });
   }
+
+  window.initProductCards = initProductCards;
 
   function setActiveCategory(cat) {
     if (!categoryStrip) return;
@@ -825,6 +1003,13 @@
 
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
+    if (
+      lifestyleFiltersRoot &&
+      lifestyleFiltersRoot.querySelector(".lifestyle-filter-panel:not([hidden])")
+    ) {
+      closeAllLifestyleDropdowns();
+      return;
+    }
     if (omuniBenefitsSlide && !omuniBenefitsSlide.hidden && omuniBenefitsSlide.classList.contains("omuni-benefits--open")) {
       closeOmuniBenefits();
       return;
@@ -843,6 +1028,7 @@
   document.addEventListener("omuni:state-changed", function () {
     renderCartDrawer();
     document.querySelectorAll(".product-card").forEach(syncCardActions);
+    if (gridLifestyle) applyLifestyleFacets();
   });
 
   initProductCards();

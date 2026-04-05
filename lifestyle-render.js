@@ -33,12 +33,15 @@
     );
   }
 
-  function buildCard(p) {
+  function buildCard(p, catalogIndex) {
     var id = escAttr(p.id);
     var brand = escAttr(p.brand);
     var name = escAttr(p.name);
     var img = escAttr(p.img);
     var off = p.off;
+    var gender = escAttr(p.gender || "");
+    var typ = escAttr(p.type || "");
+    var size = escAttr(p.size || "");
     return (
       '<article class="product-card product-card--apparel" data-id="' +
       id +
@@ -56,6 +59,14 @@
       escAttr(p.unit || "1 pc") +
       '" data-product-img="' +
       img +
+      '" data-gender="' +
+      gender +
+      '" data-type="' +
+      typ +
+      '" data-size="' +
+      size +
+      '" data-catalog-index="' +
+      catalogIndex +
       '">' +
       '<div class="product-card__media">' +
       '<span class="product-card__badge">' +
@@ -90,8 +101,14 @@
     var cat = window.LIFESTYLE_CATALOG;
     if (!grid || !cat || !cat.length) return;
     var parts = new Array(cat.length);
-    for (var i = 0; i < cat.length; i++) parts[i] = buildCard(cat[i]);
+    for (var i = 0; i < cat.length; i++) parts[i] = buildCard(cat[i], i);
     grid.innerHTML = parts.join("");
+    if (typeof window.initProductCards === "function") {
+      window.initProductCards();
+    }
+    if (typeof window.applyLifestyleFacets === "function") {
+      window.applyLifestyleFacets();
+    }
   }
 
   if (document.readyState === "loading") {

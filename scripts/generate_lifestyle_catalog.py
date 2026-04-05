@@ -2,6 +2,7 @@
 """Emit lifestyle-catalog.js with 1500 apparel products; 20 baseline IDs when toggle off."""
 import hashlib
 import json
+import re
 from pathlib import Path
 
 # 12 brands × 125 = 1500
@@ -150,6 +151,226 @@ def pick_bata_formal_img(i: int) -> str:
     return BATA_FORMAL_SHOE_IMG_POOL[i % len(BATA_FORMAL_SHOE_IMG_POOL)]
 
 
+APPAREL_SIZES = ["S", "M", "L", "XL", "XXL"]
+SHOE_SIZES = ["7", "8", "9", "10", "11"]
+GENDERS = ("Men", "Women", "Unisex")
+
+
+def gender_for(pid: str) -> str:
+    h = int(hashlib.md5((pid + "g").encode()).hexdigest()[:8], 16)
+    r = h % 100
+    if r < 48:
+        return "Men"
+    if r < 82:
+        return "Women"
+    return "Unisex"
+
+
+def infer_type(template: str) -> str:
+    """Map product name template to a stable category for Type filter."""
+    t = template.lower()
+    if any(
+        k in t
+        for k in (
+            "shoe",
+            "sneaker",
+            "sandal",
+            "slide",
+            "boot",
+            "cleat",
+            "floater",
+            "loafer",
+            "moccasin",
+            "derby",
+            "monk",
+            "chelsea",
+            "runner",
+            "ultraboost",
+            "stan smith",
+            "adilette",
+            "predator",
+            "duramo",
+            "boat",
+        )
+    ):
+        return "Footwear"
+    if "jeans" in t or re.search(r"\b50[125]\b", t) or "taper" in t and "jeans" in t:
+        return "Jeans"
+    if t == "loungewear":
+        return "Innerwear & Socks"
+    if any(
+        k in t
+        for k in (
+            "brief",
+            "trunk",
+            "boxer",
+            "socks pack",
+            "ankle socks",
+            "cotton socks",
+            "thermal",
+            "long johns",
+            "trunks solid",
+            "printed briefs",
+            "classic briefs",
+            "seamless vest",
+            "low-rise trunks",
+            "trunks pack",
+            "robe",
+            "pyjama set",
+            "pyjama",
+            "vest pack",
+            "gym vest",
+            "ribbed vest",
+        )
+    ):
+        return "Innerwear & Socks"
+    if t in ("cap", "belt", "beanie") or "sports cap" in t or "classic cap" in t:
+        return "Accessories"
+    if any(
+        k in t
+        for k in (
+            "hoodie",
+            "jacket",
+            "bomber",
+            "parka",
+            "blazer",
+            "cardigan",
+            "sweatshirt",
+            "sweater",
+            "pullover",
+            "denim jacket",
+            "lightweight jacket",
+            "track jacket",
+            "zip hoodie",
+            "hooded sweatshirt",
+            "half-zip",
+            "reflective jacket",
+            "puffer",
+            "sherpa",
+            "trucker",
+            "zip track",
+            "zip hood",
+        )
+    ):
+        return "Jackets & Sweats"
+    if any(
+        k in t
+        for k in (
+            "training tee",
+            "gym shorts",
+            "running singlet",
+            "athletic joggers",
+            "yoga",
+            "compression",
+            "cricket",
+            "badminton",
+            "mesh tank",
+            "performance shorts",
+            "dryfit",
+            "sport",
+            "designed 2 move",
+            "quick dry",
+            "muscle tee",
+            "zip track top",
+            "training vest",
+            "active polo",
+        )
+    ):
+        return "Activewear"
+    if any(
+        k in t
+        for k in (
+            "polo",
+            "tee",
+            "tank",
+            "henley",
+            "longline",
+            "graphic",
+            "logo tee",
+            "essential tee",
+            "crew neck",
+            "striped polo",
+            "pique",
+            "rugby",
+            "crop top",
+            "phone pocket",
+            "oversized tee",
+            "muscle fit tee",
+            "cotton tee",
+            "long sleeve tee",
+        )
+    ):
+        return "T-Shirts & Polos"
+    if (
+        "shirt" in t
+        or t in ("oxford", "slim fit", "tailored fit", "spread collar", "half sleeve", "full sleeve")
+        or "oxford" in t
+    ):
+        return "Shirts"
+    if any(
+        k in t
+        for k in (
+            "shorts",
+            "chinos",
+            "chino",
+            "joggers",
+            "trousers",
+            "pants",
+            "track pants",
+            "cargo",
+            "twill",
+            "leggings",
+            "loungewear shorts",
+            "swim shorts",
+            "denim shorts",
+            "relaxed shorts",
+            "basketball shorts",
+            "jogger pants",
+        )
+    ):
+        return "Shorts & Trousers"
+    if "loungewear" in t or "pyjama" in t or "loungewear" in t:
+        return "Innerwear & Socks"
+    if "sock" in t:
+        return "Innerwear & Socks"
+    if "vest" in t and "puffer" not in t and "zip" not in t:
+        return "Innerwear & Socks"
+    if "polo dress shirt" in t:
+        return "Shirts"
+    return "Other"
+
+
+def size_for(pid: str, slug: str, template: str) -> str:
+    t = template.lower()
+    footwear = slug in ("bata",) or any(
+        k in t
+        for k in (
+            "shoe",
+            "sneaker",
+            "sandal",
+            "slide",
+            "boot",
+            "cleat",
+            "floater",
+            "loafer",
+            "moccasin",
+            "derby",
+            "monk",
+            "chelsea",
+            "runner",
+            "ultraboost",
+            "stan smith",
+            "adilette",
+            "predator",
+            "duramo",
+        )
+    )
+    h = int(hashlib.md5((pid + "sz").encode()).hexdigest()[:8], 16)
+    if footwear:
+        return SHOE_SIZES[h % len(SHOE_SIZES)]
+    return APPAREL_SIZES[h % len(APPAREL_SIZES)]
+
+
 def price_tuple(seed: str) -> tuple:
     h = int(hashlib.md5(seed.encode()).hexdigest()[:8], 16)
     price = 299 + (h % 4700)
@@ -181,6 +402,7 @@ def main() -> None:
                 bata_img_i += 1
             else:
                 img = pick_img(len(products))
+            typ = infer_type(tmpl)
             products.append(
                 {
                     "id": pid,
@@ -192,6 +414,9 @@ def main() -> None:
                     "img": img,
                     "unit": "1 pc",
                     "hasSize": True,
+                    "gender": gender_for(pid),
+                    "type": typ,
+                    "size": size_for(pid, slug, tmpl),
                 }
             )
             if slug in BASELINE_SLUGS and idx <= 4:
@@ -200,10 +425,20 @@ def main() -> None:
     assert len(baseline_ids) == 20
     assert len(products) == TOTAL_PRODUCTS
 
+    brand_order = [b[0] for b in ALL_BRANDS]
+    type_order = sorted({p["type"] for p in products}, key=str.lower)
+    filter_options = {
+        "genders": list(GENDERS),
+        "brands": brand_order,
+        "sizes": APPAREL_SIZES + SHOE_SIZES,
+        "types": type_order,
+    }
+
     out_path = Path(__file__).resolve().parent.parent / "lifestyle-catalog.js"
     lines = [
         "/** Auto-generated by scripts/generate_lifestyle_catalog.py — do not edit by hand. */",
         "window.LIFESTYLE_BASELINE_IDS = " + json.dumps(baseline_ids) + ";",
+        "window.LIFESTYLE_FILTER_OPTIONS = " + json.dumps(filter_options, ensure_ascii=False) + ";",
         "window.LIFESTYLE_CATALOG = " + json.dumps(products, ensure_ascii=False) + ";",
     ]
     out_path.write_text("\n".join(lines) + "\n", encoding="utf-8")

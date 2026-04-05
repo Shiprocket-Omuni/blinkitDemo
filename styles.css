@@ -560,28 +560,331 @@ body.omuni-on .cat-tile__meta {
   margin: 0 auto;
 }
 
-.lifestyle-brand-strip {
-  padding: 12px 0 10px;
+/* ----- Network Health (Lifestyle) ----- */
+.network-health {
+  margin: 0;
+  padding: 0;
   border-bottom: 1px solid var(--border);
   background: var(--bg);
 }
 
-.lifestyle-brand-strip__scroll {
+.network-health__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px 16px 14px;
+}
+
+.network-health__header {
+  margin-bottom: 14px;
+}
+
+.network-health__title {
+  margin: 0 0 6px;
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.network-health__mode {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--muted);
+  max-width: 52rem;
+}
+
+.network-health__tabs {
   display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.network-health__tab {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-page);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.network-health__tab:hover {
+  border-color: rgba(12, 131, 31, 0.35);
+  color: var(--green);
+}
+
+.network-health__tab--active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.network-health__tab--active:hover {
+  color: #fff;
+  border-color: var(--green);
+}
+
+.network-health__panel {
+  margin: 0;
+}
+
+.network-health__cluster-label {
+  margin: 0 0 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.network-health__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .network-health__stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.network-health__stats--three {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .network-health__stats--three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.network-health__stat {
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-page);
+}
+
+.network-health__stat-value {
+  display: block;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.network-health__stat-bracket {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.network-health__stat-label {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.network-health__conversion {
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-page);
+}
+
+.network-health__conversion--lift {
+  border-color: rgba(12, 131, 31, 0.35);
+  background: rgba(12, 131, 31, 0.06);
+}
+
+.network-health__conversion-kpi {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--green);
+  letter-spacing: -0.03em;
+}
+
+.network-health__conversion-desc {
+  margin: 8px 0 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.network-health__conversion-note {
+  margin: 10px 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.u-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.lifestyle-filters {
+  position: relative;
+  z-index: 5;
+  padding: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.lifestyle-filters__bar {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
   overflow-x: auto;
-  padding: 0 16px 6px;
-  scrollbar-width: thin;
+  overflow-y: visible;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 }
 
-.lifestyle-brand-strip__scroll::-webkit-scrollbar {
-  height: 5px;
+@media (min-width: 900px) {
+  .lifestyle-filters__bar {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 10px;
+    overflow-x: visible;
+    padding: 14px 20px;
+  }
 }
 
-.lifestyle-brand-strip__scroll::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
+.lifestyle-filters__bar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.lifestyle-filters__bar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
   border-radius: 4px;
+}
+
+.lifestyle-filter-dd {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.lifestyle-filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.lifestyle-filter-pill:hover {
+  border-color: rgba(0, 0, 0, 0.18);
+  background: #fafbfc;
+}
+
+.lifestyle-filter-pill--dirty {
+  border-color: rgba(12, 131, 31, 0.45);
+  background: rgba(12, 131, 31, 0.06);
+}
+
+.lifestyle-filter-pill[aria-expanded="true"] {
+  border-color: rgba(12, 131, 31, 0.55);
+  box-shadow: 0 0 0 1px rgba(12, 131, 31, 0.2);
+}
+
+.lifestyle-filter-pill__icon {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.lifestyle-filter-pill__chevron {
+  flex-shrink: 0;
+  opacity: 0.55;
+  margin-left: 2px;
+}
+
+.lifestyle-filter-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 30;
+  min-width: 200px;
+  max-width: min(92vw, 320px);
+  max-height: min(70vh, 360px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 6px;
+  margin: 0;
+  list-style: none;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
+}
+
+.lifestyle-filter-panel--wide {
+  min-width: 240px;
+  max-width: min(92vw, 340px);
+}
+
+.lifestyle-filter-option {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  margin: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.lifestyle-filter-option:hover {
+  background: var(--bg-page);
+}
+
+.lifestyle-filter-option--active {
+  background: rgba(12, 131, 31, 0.1);
+  color: var(--green);
+  font-weight: 700;
 }
 
 .brand-chip {
