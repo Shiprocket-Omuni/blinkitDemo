@@ -1884,7 +1884,11 @@ body.checkout-open {
 
 @media (max-width: 520px) {
   .omuni-toggle__text {
-    font-size: 0.62rem;
+    font-size: 0.58rem;
+    white-space: normal;
+    max-width: 10rem;
+    line-height: 1.15;
+    text-align: left;
   }
 
   .omuni-toggle-wrap {
