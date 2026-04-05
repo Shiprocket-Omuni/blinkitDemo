@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Emit lifestyle-catalog.js with 1500 apparel products; 20 baseline IDs when toggle off."""
+"""Emit lifestyle-catalog.js with 1500 apparel products; 5 baseline IDs when toggle off."""
 import hashlib
 import json
 import re
@@ -8,7 +8,7 @@ from pathlib import Path
 # 12 brands × 125 = 1500
 TOTAL_PRODUCTS = 1500
 
-# Slugs that contribute to baseline in-stock (4 SKUs each = 20 total)
+# Slugs that contribute to baseline in-stock; first 5 matching SKUs only (toggle off).
 BASELINE_SLUGS = frozenset({"jockey", "boldfit", "adidas", "pepe", "uspa"})
 
 # (display name, slug, name templates — cycled with index for uniqueness)
@@ -419,10 +419,10 @@ def main() -> None:
                     "size": size_for(pid, slug, tmpl),
                 }
             )
-            if slug in BASELINE_SLUGS and idx <= 4:
+            if len(baseline_ids) < 5 and slug in BASELINE_SLUGS and idx <= 4:
                 baseline_ids.append(pid)
 
-    assert len(baseline_ids) == 20
+    assert len(baseline_ids) == 5
     assert len(products) == TOTAL_PRODUCTS
 
     brand_order = [b[0] for b in ALL_BRANDS]

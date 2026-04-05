@@ -429,6 +429,8 @@ button {
   font-weight: 700;
   font-size: 0.85rem;
   border-radius: 8px;
+  opacity: 0.38;
+  transition: opacity 0.2s ease;
 }
 
 .hero-banner__art {
@@ -515,6 +517,8 @@ button {
   font-weight: 700;
   font-size: 0.75rem;
   width: fit-content;
+  opacity: 0.38;
+  transition: opacity 0.2s ease;
 }
 
 .promo-tile--pharma {
@@ -560,6 +564,24 @@ button {
   scrollbar-width: thin;
 }
 
+/* Lifestyle & Apparels first — other category tiles are de-emphasized */
+.category-tiles > .cat-tile:not(.cat-tile--link) {
+  opacity: 0.4;
+  filter: grayscale(35%);
+  transition: opacity 0.22s ease, filter 0.22s ease;
+}
+
+.category-tiles > .cat-tile:not(.cat-tile--link):hover,
+.category-tiles > .cat-tile:not(.cat-tile--link):focus-visible {
+  opacity: 0.78;
+  filter: grayscale(10%);
+}
+
+.category-tiles > .cat-tile.cat-tile--active:not(.cat-tile--link) {
+  opacity: 0.62;
+  filter: grayscale(18%);
+}
+
 .cat-tile {
   flex: 0 0 auto;
   width: 88px;
@@ -577,6 +599,12 @@ a.cat-tile--link {
   text-decoration: none;
   color: inherit;
   cursor: pointer;
+  opacity: 1;
+  filter: none;
+}
+
+a.cat-tile--link.cat-tile--lifestyle .cat-tile__img {
+  box-shadow: var(--shadow-card), 0 0 0 2px rgba(34, 197, 94, 0.45);
 }
 
 a.cat-tile--link:focus-visible {
@@ -701,6 +729,31 @@ body.omuni-on .cat-tile__meta {
   margin-bottom: 14px;
 }
 
+.network-health__header--with-omuni-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.network-health__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  width: 100%;
+}
+
+.network-health__title-row .network-health__title {
+  margin: 0;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.network-health__header--with-omuni-toggle .network-health__mode {
+  margin: 0;
+  max-width: none;
+}
+
 .network-health__title {
   margin: 0 0 6px;
   font-size: clamp(1rem, 2vw, 1.15rem);
@@ -709,12 +762,39 @@ body.omuni-on .cat-tile__meta {
   color: var(--text);
 }
 
+.network-health__title-hint {
+  display: inline;
+  font-weight: 600;
+  font-size: 0.78em;
+  color: var(--muted);
+  letter-spacing: 0;
+  white-space: normal;
+}
+
 .network-health__mode {
   margin: 0;
   font-size: 0.8rem;
   line-height: 1.45;
   color: var(--muted);
   max-width: 52rem;
+}
+
+/* Omuni toggle — flush right beside “Network Health” title */
+.omuni-toggle-wrap--network-health {
+  margin: 0 0 0 auto;
+  flex-shrink: 0;
+}
+
+@media (max-width: 520px) {
+  .network-health__title-row {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .omuni-toggle-wrap--network-health {
+    margin-left: auto;
+  }
 }
 
 .network-health__tabs {
@@ -2459,26 +2539,12 @@ body.checkout-open {
   margin: 0;
 }
 
-.omuni-toggle__text {
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: #e8eaef;
-  white-space: nowrap;
+.omuni-toggle-label--solo {
+  gap: 0;
 }
 
-@media (max-width: 520px) {
-  .omuni-toggle__text {
-    font-size: 0.58rem;
-    white-space: normal;
-    max-width: 10rem;
-    line-height: 1.15;
-    text-align: left;
-  }
-
-  .omuni-toggle-wrap {
-    padding: 5px 8px;
-  }
+.omuni-toggle-wrap--solo {
+  padding: 5px 8px;
 }
 
 .omuni-toggle {
@@ -2530,120 +2596,6 @@ body.checkout-open {
 .omuni-toggle__input:focus-visible + .omuni-toggle__slider {
   outline: 2px solid #4ade80;
   outline-offset: 2px;
-}
-
-.fashion-catalog-banner {
-  max-width: 1280px;
-  margin: 16px auto 0;
-  padding: 12px 16px;
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  transition: border-color 0.35s ease, box-shadow 0.35s ease;
-  background-color: var(--bg);
-  background-image: linear-gradient(95deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.88) 45%, rgba(247, 250, 252, 0.75) 100%),
-    url("https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=280&fit=crop&auto=format&q=80");
-  background-size: cover;
-  background-position: right center;
-}
-
-.fashion-catalog-banner--omuni {
-  border-color: rgba(12, 131, 31, 0.45);
-  box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.2), 0 8px 32px rgba(12, 131, 31, 0.12);
-}
-
-.fashion-catalog-banner__icon {
-  font-size: 1.25rem;
-  line-height: 1;
-}
-
-.fashion-catalog-banner__text {
-  margin: 0;
-  font-size: 0.85rem;
-  font-weight: 600;
-  line-height: 1.45;
-  color: var(--text);
-}
-
-body.omuni-on .fashion-catalog-banner__text {
-  color: #0f5132;
-}
-
-.omuni-metrics {
-  max-width: 1280px;
-  margin: 20px auto 0;
-  padding: 0 16px 8px;
-}
-
-.omuni-metrics__heading {
-  margin: 0 0 12px;
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: var(--text);
-}
-
-.omuni-metrics__grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-@media (max-width: 720px) {
-  .omuni-metrics__grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.omuni-metric {
-  padding: 14px 16px;
-  border-radius: var(--radius);
-  background: var(--bg);
-  border: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  transition: border-color 0.35s ease, box-shadow 0.35s ease;
-}
-
-.omuni-metric--glow {
-  border-color: rgba(12, 131, 31, 0.5);
-  box-shadow: 0 0 24px rgba(34, 197, 94, 0.18);
-}
-
-.omuni-metrics--omuni .omuni-metric__value {
-  color: var(--green);
-}
-
-.omuni-metric__label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-}
-
-.omuni-metric__value {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--text);
-  line-height: 1.1;
-  transition: color 0.3s ease;
-}
-
-.omuni-metric__value--text {
-  font-size: 1.35rem;
-}
-
-#metricVisValue {
-  transition: opacity 0.2s ease;
-}
-
-.omuni-metric__hint {
-  font-size: 0.75rem;
-  color: var(--muted);
-  line-height: 1.35;
 }
 
 .products-omuni-note {

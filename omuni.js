@@ -1,5 +1,5 @@
 /**
- * Omuni before/after toggle — updates copy, ETAs, metrics, and cart messaging without reload.
+ * Omuni before/after toggle — updates copy, ETAs, and cart messaging without reload.
  */
 (function () {
   var STORAGE_KEY = "omuni-enabled";
@@ -14,8 +14,6 @@
       heroTitle: "Stock up on daily essentials",
       heroSub:
         "Get farm-fresh goodness & a range of exotic fruits, vegetables, eggs & more.",
-      fashionBanner:
-        "Limited fashion availability · restocks can be slow outside core grocery.",
       productsNote:
         "Grocery ETAs reflect dark-store fulfilment. Fashion assortment is narrow on this lane.",
       apparelMeta: "Limited SKUs",
@@ -25,10 +23,6 @@
       promo2Sub: "Food, treats, toys & more.",
       promo3Title: "No time for a diaper run?",
       promo3Sub: "Get baby care essentials.",
-      fillHint: "Inventory sync every 24h",
-      cancelHint: "Often stockouts & substitutions",
-      visHint: "End-of-day updates",
-      visLabel: "Batch",
       ops1:
         "Fulfilment: standard dark-store SLA. Fashion: limited brand depth & slower refresh.",
       ops2:
@@ -39,8 +33,6 @@
       heroTitle: "Stock up on daily essentials",
       heroSub:
         "Fashion available in under 30 mins via 5000+ stores — Bata, XYXX & more. Groceries still in minutes.",
-      fashionBanner:
-        "Fashion available in under 30 mins via 5000+ stores & multiple brands — real-time inventory across the network.",
       productsNote:
         "Omuni: 5000+ stores, 50+ apparel brands — fashion in under 30 mins alongside your grocery basket.",
       apparelMeta: "5000+ stores · 50+ brands",
@@ -50,20 +42,11 @@
       promo2Sub: "Bata, XYXX & more — under 30 min apparel delivery.",
       promo3Title: "No time for a diaper run?",
       promo3Sub: "Baby care + apparel add-ons in one trip.",
-      fillHint: "POS-linked, network-wide fill",
-      cancelHint: "Fewer stockouts & subs",
-      visHint: "Store-level live feeds",
-      visLabel: "Live",
       ops1:
         "Omuni: 95%+ fill rate · under 30 min apparel SLA from 5000+ partner stores.",
       ops2:
         "Real-time inventory visibility · cancellations down to ~3% vs baseline.",
     },
-  };
-
-  var METRICS = {
-    default: { fill: 70, cancel: 12 },
-    omuni: { fill: 96, cancel: 3 },
   };
 
   function $(id) {
@@ -75,33 +58,6 @@
     if (el) el.textContent = text;
   }
 
-  function parseMetric(el) {
-    if (!el) return 0;
-    var t = el.textContent.replace(/[^\d.]/g, "");
-    var n = parseFloat(t);
-    return isNaN(n) ? 0 : n;
-  }
-
-  function animateValue(el, from, to, suffix, durationMs, formatter) {
-    if (!el) return;
-    if (Math.abs(from - to) < 0.05) {
-      el.textContent = formatter ? formatter(to) : Math.round(to) + (suffix || "");
-      return;
-    }
-    var start = performance.now();
-    suffix = suffix || "";
-    function easeOutCubic(t) {
-      return 1 - Math.pow(1 - t, 3);
-    }
-    function frame(now) {
-      var u = Math.min(1, (now - start) / durationMs);
-      var v = from + (to - from) * easeOutCubic(u);
-      el.textContent = formatter ? formatter(v) : Math.round(v) + suffix;
-      if (u < 1) requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
-  }
-
   function hashString(s) {
     var h = 5381;
     for (var i = 0; i < s.length; i++) {
@@ -110,20 +66,67 @@
     return Math.abs(h);
   }
 
+  function isInLifestyleBaseline(id) {
+    var ids = window.LIFESTYLE_BASELINE_IDS;
+    if (!ids || !ids.length) return false;
+    return ids.indexOf(String(id)) !== -1;
+  }
+
+  /** Brand slug from lv-{slug}-{nnn} (e.g. lv-jockey-001 → jockey). Fallback: full id. */
+  function brandKeyFromApparelProductId(productId) {
+    var parts = String(productId).split("-");
+    if (parts.length >= 3 && parts[0] === "lv") {
+      return parts.slice(1, -1).join("-");
+    }
+    return String(productId);
+  }
+
   /**
-   * Apparel ETAs stay the same whether “Stock from nearby stores” is on or off.
-   * Stable 25–35 min per product id (aligned with fashion fulfilment window).
+   * Stable pseudo-random mix: id slug (brand lane) + full SKU + optional display brand + salt.
+   * Cart path (no data-brand) still varies per product and per brand slug from the id.
    */
-  function apparelDeliveryMinutes(productId) {
-    var h = hashString(String(productId) + "O");
-    return 25 + (h % 11);
+  function apparelEtaMix(productId, brandHint, salt) {
+    var id = String(productId);
+    var slug = brandKeyFromApparelProductId(id);
+    var extra = "";
+    if (brandHint && String(brandHint).trim()) {
+      extra = String(brandHint).trim().toLowerCase().replace(/[^a-z0-9]+/g, "");
+    }
+    return hashString(slug + "\n" + id + "\n" + extra + "\n" + salt);
+  }
+
+  /**
+   * Apparel ETAs (lifestyle SKUs, data-id lv-… / a-…):
+   * Uses brand + product id so each brand and SKU gets a distinct stable ETA.
+   * Baseline allowlist: 10–20 min (unchanged when toggle turns on).
+   * Toggle on + not baseline: 60–180 min (1–3 hr).
+   * Toggle off + not baseline: 25–35 min.
+   * @param {string} [brandFromDom] optional data-brand from card (stronger brand signal).
+   */
+  function apparelDeliveryMinutes(productId, brandFromDom) {
+    var id = String(productId);
+    var bHint = brandFromDom;
+    if (isInLifestyleBaseline(id)) {
+      return 10 + (apparelEtaMix(id, bHint, "BASE") % 11);
+    }
+    if (state.isOmuniEnabled) {
+      return 60 + (apparelEtaMix(id, bHint, "OMUNI") % 121);
+    }
+    return 25 + (apparelEtaMix(id, bHint, "OFF") % 11);
   }
 
   /** Apparel SKUs that are only available when nearby-store inventory is on (OOS when toggle off). */
   var NEARBY_STOCK_APPAREL_IDS = ["lv-bata-1", "lv-tommy-1"];
 
   function formatMinsLabel(mins) {
-    return mins + " MINS";
+    var m = Math.round(Number(mins) || 0);
+    if (m >= 60) {
+      var h = Math.floor(m / 60);
+      var r = m % 60;
+      if (r === 0) return h + " HR";
+      return h + " HR " + r + " MINS";
+    }
+    return m + " MINS";
   }
 
   function applyProductEtas() {
@@ -133,7 +136,8 @@
       var useOmuni = state.isOmuniEnabled;
       if (card.classList.contains("product-card--apparel")) {
         var pid = card.getAttribute("data-id") || "";
-        var m = apparelDeliveryMinutes(pid);
+        var brand = card.getAttribute("data-brand") || "";
+        var m = apparelDeliveryMinutes(pid, brand);
         eta.textContent = formatMinsLabel(m);
       } else if (card.hasAttribute("data-eta-default")) {
         var v = useOmuni
@@ -224,49 +228,11 @@
     lifestyleNearbyPrev = state.isOmuniEnabled;
   }
 
-  function applyMetricsAnimated() {
-    var fillEl = $("metricFillValue");
-    var cancelEl = $("metricCancelValue");
-    var visEl = $("metricVisValue");
-    var target = state.isOmuniEnabled ? METRICS.omuni : METRICS.default;
-
-    if (fillEl) {
-      var f0 = parseMetric(fillEl);
-      animateValue(fillEl, f0, target.fill, "%", 550, function (v) {
-        return Math.round(v) + "%";
-      });
-    }
-    if (cancelEl) {
-      var c0 = parseMetric(cancelEl);
-      animateValue(cancelEl, c0, target.cancel, "%", 550, function (v) {
-        return Math.round(v) + "%";
-      });
-    }
-    if (visEl) {
-      visEl.style.opacity = "0";
-      setTimeout(function () {
-        var c = state.isOmuniEnabled ? COPY.omuni : COPY.default;
-        visEl.textContent = c.visLabel;
-        visEl.style.opacity = "1";
-      }, 160);
-    }
-
-    var c = state.isOmuniEnabled ? COPY.omuni : COPY.default;
-    setText("metricFillHint", c.fillHint);
-    setText("metricCancelHint", c.cancelHint);
-    setText("metricVisHint", c.visHint);
-
-    [ $("metricFillCard"), $("metricCancelCard"), $("metricVisCard") ].forEach(function (el) {
-      if (el) el.classList.toggle("omuni-metric--glow", state.isOmuniEnabled);
-    });
-  }
-
   function applyCopy() {
     var c = state.isOmuniEnabled ? COPY.omuni : COPY.default;
     setText("locationDeliveryLine", c.locationLine);
     setText("heroBannerTitle", c.heroTitle);
     setText("heroBannerSub", c.heroSub);
-    setText("fashionCatalogText", c.fashionBanner);
     setText("omuniSlideProductsNote", c.productsNote);
     setText("apparelTileMeta", c.apparelMeta);
     setText("promo1Title", c.promo1Title);
@@ -278,14 +244,6 @@
     setText("omuniOpsLine1", c.ops1);
     setText("omuniOpsLine2", c.ops2);
 
-    var banner = $("omuniSlideCatalog");
-    if (banner) {
-      banner.classList.toggle("fashion-catalog-banner--omuni", state.isOmuniEnabled);
-    }
-    var metrics = $("omuniSlideMetrics");
-    if (metrics) {
-      metrics.classList.toggle("omuni-metrics--omuni", state.isOmuniEnabled);
-    }
     var hero = $("omuniSlideHero");
     if (hero) {
       hero.classList.toggle("hero-banner__copy--omuni", state.isOmuniEnabled);
@@ -297,8 +255,15 @@
   }
 
   function minutesFromEtaLabel(label) {
-    var m = String(label || "").match(/(\d+)/);
-    return m ? parseInt(m[1], 10) : 0;
+    var s = String(label || "").trim();
+    var hr = s.match(/(\d+)\s*HR\b/i);
+    var mn = s.match(/(\d+)\s*MINS/i);
+    var total = 0;
+    if (hr) total += parseInt(hr[1], 10) * 60;
+    if (mn) total += parseInt(mn[1], 10);
+    if (total > 0) return total;
+    var fallback = s.match(/(\d+)/);
+    return fallback ? parseInt(fallback[1], 10) : 0;
   }
 
   /** Same rules as grocery product cards (data-eta-default / data-eta-omuni). */
@@ -316,7 +281,7 @@
   function getCartLineEtaLabel(productId) {
     var id = String(productId || "");
     if (id.indexOf("a-") === 0 || id.indexOf("lv-") === 0) {
-      return formatMinsLabel(apparelDeliveryMinutes(id));
+      return formatMinsLabel(apparelDeliveryMinutes(id, ""));
     }
     if (id.indexOf("g-") === 0) {
       return groceryEtaLabelFromCard(id);
@@ -342,8 +307,20 @@
       typeof window.blinkitGetCartForEta === "function" ? window.blinkitGetCartForEta() : null;
     var maxM = maxMinutesForCart(cart);
     if (maxM > 0) {
-      el.textContent =
-        "Delivery in " + maxM + " minute" + (maxM === 1 ? "" : "s");
+      if (maxM >= 60) {
+        var ch = Math.floor(maxM / 60);
+        var cr = maxM % 60;
+        if (cr === 0) {
+          el.textContent =
+            "Delivery in " + ch + " hour" + (ch === 1 ? "" : "s");
+        } else {
+          el.textContent =
+            "Delivery in " + ch + " hr " + cr + " min" + (cr === 1 ? "" : "s");
+        }
+      } else {
+        el.textContent =
+          "Delivery in " + maxM + " minute" + (maxM === 1 ? "" : "s");
+      }
       return;
     }
     var c = state.isOmuniEnabled ? COPY.omuni : COPY.default;
@@ -359,7 +336,6 @@
     applyProductEtas();
     applyNearbyStockAvailability();
     reorderLifestyleProductGrid();
-    applyMetricsAnimated();
     refreshCartDeliveryLine();
 
     var wrap = $("omuniToggleWrap");
@@ -408,12 +384,12 @@
     refresh: applyAll,
     /** ETA string e.g. "24 MINS" for cart rows — uses same rules as product cards. */
     getApparelEtaLabel: function (productId) {
-      return formatMinsLabel(apparelDeliveryMinutes(productId));
+      return formatMinsLabel(apparelDeliveryMinutes(productId, ""));
     },
   };
 
   window.omuniGetApparelEtaForProduct = function (productId) {
-    return formatMinsLabel(apparelDeliveryMinutes(productId));
+    return formatMinsLabel(apparelDeliveryMinutes(productId, ""));
   };
 
   /** Cart row ETA label — matches homepage product cards (grocery + apparel). */

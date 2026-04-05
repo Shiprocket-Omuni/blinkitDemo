@@ -30,9 +30,8 @@
         </div>
       </div>
       <nav class="header__nav">
-        <div class="omuni-toggle-wrap" id="omuniToggleWrap">
-          <label class="omuni-toggle-label" for="omuniToggle">
-            <span class="omuni-toggle__text">Stock from Nearby Stores</span>
+        <div class="omuni-toggle-wrap omuni-toggle-wrap--solo" id="omuniToggleWrap">
+          <label class="omuni-toggle-label omuni-toggle-label--solo" for="omuniToggle">
             <span class="omuni-toggle">
               <input type="checkbox" id="omuniToggle" class="omuni-toggle__input" aria-label="Enable stock from nearby stores" />
               <span class="omuni-toggle__slider" aria-hidden="true"></span>
@@ -127,6 +126,11 @@
     <section class="categories">
       <h2 class="section-title">Shop by category</h2>
       <div class="category-tiles" id="categoryStrip" role="tablist" aria-label="Shop by category">
+        <a href="lifestyle-apparels.html" class="cat-tile cat-tile--link cat-tile--lifestyle">
+          <span class="cat-tile__img cat-tile__img--apparel" aria-hidden="true"></span>
+          <span class="cat-tile__label">Lifestyle &amp; Apparels</span>
+          <span class="cat-tile__meta" id="apparelTileMeta" aria-live="polite">Limited SKUs</span>
+        </a>
         <button type="button" class="cat-tile cat-tile--active" data-category="all" role="tab" aria-selected="true">
           <span class="cat-tile__img cat-tile__img--all" aria-hidden="true"></span>
           <span class="cat-tile__label">All</span>
@@ -155,37 +159,6 @@
           <span class="cat-tile__img cat-tile__img--care" aria-hidden="true"></span>
           <span class="cat-tile__label">Personal Care</span>
         </button>
-        <a href="lifestyle-apparels.html" class="cat-tile cat-tile--link">
-          <span class="cat-tile__img cat-tile__img--apparel" aria-hidden="true"></span>
-          <span class="cat-tile__label">Lifestyle &amp; Apparels</span>
-          <span class="cat-tile__meta" id="apparelTileMeta" aria-live="polite">Limited SKUs</span>
-        </a>
-      </div>
-    </section>
-
-    <div class="fashion-catalog-banner" id="omuniSlideCatalog" role="status" aria-live="polite">
-      <span class="fashion-catalog-banner__icon" aria-hidden="true">👕</span>
-      <p class="fashion-catalog-banner__text" id="fashionCatalogText">Limited fashion availability · restocks can be slow outside core grocery.</p>
-    </div>
-
-    <section class="omuni-metrics" id="omuniSlideMetrics" aria-labelledby="omuniMetricsHeading">
-      <h2 class="omuni-metrics__heading" id="omuniMetricsHeading">Network health</h2>
-      <div class="omuni-metrics__grid">
-        <div class="omuni-metric" id="metricFillCard">
-          <span class="omuni-metric__label">Fill rate</span>
-          <span class="omuni-metric__value" id="metricFillValue">70%</span>
-          <span class="omuni-metric__hint" id="metricFillHint">Inventory sync every 24h</span>
-        </div>
-        <div class="omuni-metric" id="metricCancelCard">
-          <span class="omuni-metric__label">Cancellations</span>
-          <span class="omuni-metric__value" id="metricCancelValue">12%</span>
-          <span class="omuni-metric__hint" id="metricCancelHint">Often stockouts &amp; substitutions</span>
-        </div>
-        <div class="omuni-metric" id="metricVisCard">
-          <span class="omuni-metric__label">Inventory visibility</span>
-          <span class="omuni-metric__value omuni-metric__value--text" id="metricVisValue">Batch</span>
-          <span class="omuni-metric__hint" id="metricVisHint">End-of-day updates</span>
-        </div>
       </div>
     </section>
 

@@ -30,16 +30,7 @@
         </div>
       </div>
       <nav class="header__nav">
-        <div class="omuni-toggle-wrap" id="omuniToggleWrap">
-          <label class="omuni-toggle-label" for="omuniToggle">
-            <span class="omuni-toggle__text">Stock from Nearby Stores</span>
-            <span class="omuni-toggle">
-              <input type="checkbox" id="omuniToggle" class="omuni-toggle__input" aria-label="Enable stock from nearby stores" />
-              <span class="omuni-toggle__slider" aria-hidden="true"></span>
-            </span>
-          </label>
-        </div>
-        <a class="nav-fulfillment-cta" href="omuni-store/index.html" id="storeFulfillmentCta">Store fulfillment</a>
+        <a class="nav-fulfillment-cta" href="omuni-store/index.html" id="storeFulfillmentCta">How to Fulfill</a>
         <button
           type="button"
           class="nav-benefits"
@@ -89,8 +80,21 @@
   <main class="page-main page-main--lifestyle">
     <section class="network-health" id="networkHealthSection" aria-labelledby="networkHealthHeading">
       <div class="network-health__inner">
-        <header class="network-health__header">
-          <h2 id="networkHealthHeading" class="network-health__title">Network Health</h2>
+        <header class="network-health__header network-health__header--with-omuni-toggle">
+          <div class="network-health__title-row">
+            <h2 id="networkHealthHeading" class="network-health__title">
+              Network Health
+              <span class="network-health__title-hint">(Click on Toggle Button to see Stock from nearby stores)</span>
+            </h2>
+            <div class="omuni-toggle-wrap omuni-toggle-wrap--solo omuni-toggle-wrap--network-health" id="omuniToggleWrap">
+              <label class="omuni-toggle-label omuni-toggle-label--solo" for="omuniToggle">
+                <span class="omuni-toggle">
+                  <input type="checkbox" id="omuniToggle" class="omuni-toggle__input" aria-label="Enable stock from nearby stores" />
+                  <span class="omuni-toggle__slider" aria-hidden="true"></span>
+                </span>
+              </label>
+            </div>
+          </div>
           <p class="network-health__mode" id="networkHealthModeText"></p>
         </header>
         <div class="network-health__tabs" role="tablist" aria-label="Network health views">
@@ -574,7 +578,7 @@
           </div>
           <div id="checkoutAddressFields" hidden>
             <p class="modal__hint checkout-hint">Add delivery address</p>
-            <div class="checkout-form__grid">
+          <div class="checkout-form__grid">
             <label class="field">
               <span class="field__label">Full name</span>
               <input type="text" name="fullName" class="modal__input field__input" required autocomplete="name" placeholder="As per ID" />
