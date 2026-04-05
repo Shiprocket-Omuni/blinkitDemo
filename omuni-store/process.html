@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#c62828" />
+  <title>Process consignment — Omuni</title>
+  <link rel="stylesheet" href="omuni-app.css" />
+</head>
+<body class="omuni-app">
+  <header class="omuni-app-header">
+    <a href="assigned.html" class="omuni-app-header__back" aria-label="Back">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <h1 class="omuni-app-header__title">Process consignment</h1>
+    <div class="omuni-app-header__actions">
+      <button type="button" class="omuni-app-header__icon-btn" aria-label="More">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="6" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="18" r="1.5"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="omuni-page">
+    <div class="omuni-process-meta">
+      <div>
+        <span class="omuni-field__label">Consignment id</span>
+        <span class="omuni-field__value">CW3932240161045501</span>
+      </div>
+      <div>
+        <span class="omuni-field__label">Ordered by</span>
+        <span class="omuni-ordered-by">omuni</span>
+      </div>
+      <div>
+        <span class="omuni-field__label">MP Suborder ID</span>
+        <span class="omuni-field__value">BW39322401610455</span>
+      </div>
+      <div>
+        <span class="omuni-field__label">Status</span>
+        <span class="omuni-status">ASSIGNED</span>
+      </div>
+      <div class="omuni-process-row">
+        <div class="omuni-process-timer-row">
+          <div>
+            <span class="omuni-field__label">Type</span>
+            <span class="omuni-field__value">Standard delivery</span>
+          </div>
+          <div class="omuni-timer" aria-label="25 hours 15 minutes 23 seconds">
+            <div class="omuni-timer__unit">
+              <div class="omuni-timer__box">25</div>
+              <span class="omuni-timer__cap">hr</span>
+            </div>
+            <div class="omuni-timer__unit">
+              <div class="omuni-timer__box">15</div>
+              <span class="omuni-timer__cap">min</span>
+            </div>
+            <div class="omuni-timer__unit">
+              <div class="omuni-timer__box">23</div>
+              <span class="omuni-timer__cap">sec</span>
+            </div>
+          </div>
+        </div>
+        <div class="omuni-value-block">
+          <span class="omuni-value-block__hint">Value (details)</span>
+          <div class="omuni-value-block__amount">Rs. 749</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="omuni-product-card">
+      <img class="omuni-product-card__thumb" src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=200&h=200&fit=crop&auto=format&q=80" alt="" width="80" height="80" />
+      <div>
+        <p class="omuni-product-card__brand">BATA</p>
+        <h2 class="omuni-product-card__name">3391549 SILVER WHITE CHILDREN SCHOOL</h2>
+        <div class="omuni-attr-grid">
+          <span>Color</span><span>Silver White</span>
+          <span>Size</span><span>11</span>
+          <span>Value</span><span>Rs. 749</span>
+          <span>EAN</span><span>3391549110</span>
+          <span>Brand Style id</span><span>3391549</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="omuni-actions">
+      <a class="omuni-btn omuni-btn--primary" id="omuni-scan-to-accept" href="scan.html">SCAN TO ACCEPT</a>
+      <button type="button" class="omuni-btn omuni-btn--secondary">REJECT</button>
+    </div>
+  </main>
+  <script>
+    (function () {
+      if (new URLSearchParams(window.location.search).get("hyperlocal") === "1") {
+        var el = document.querySelector(".omuni-ordered-by");
+        if (el) el.textContent = "Blinkit";
+      }
+      var scan = document.getElementById("omuni-scan-to-accept");
+      if (scan) scan.setAttribute("href", "scan.html" + window.location.search);
+    })();
+  </script>
+</body>
+</html>

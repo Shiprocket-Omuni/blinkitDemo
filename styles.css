@@ -566,6 +566,7 @@ body.omuni-on .cat-tile__meta {
   padding: 0;
   border-bottom: 1px solid var(--border);
   background: var(--bg);
+  scroll-margin-top: 88px;
 }
 
 .network-health__inner {
@@ -2542,6 +2543,46 @@ body.omuni-on .omuni-ops-strip {
 
 body.omuni-on .omuni-ops-strip__line {
   color: #14532d;
+}
+
+/* ----- Store fulfillment (header CTA) ----- */
+.nav-fulfillment-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1px solid var(--green);
+  background: rgba(12, 131, 31, 0.08);
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: var(--green-dark);
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nav-fulfillment-cta:hover {
+  background: rgba(12, 131, 31, 0.14);
+  border-color: var(--green-dark);
+  box-shadow: 0 1px 4px rgba(12, 131, 31, 0.15);
+}
+
+@media (max-width: 900px) {
+  .nav-fulfillment-cta {
+    font-size: 0.72rem;
+    padding: 6px 9px;
+  }
+}
+
+@media (max-width: 640px) {
+  .nav-fulfillment-cta {
+    max-width: 96px;
+    white-space: normal;
+    line-height: 1.2;
+    text-align: center;
+  }
 }
 
 /* ----- Benefits with Omuni (full-screen slide s10) ----- */

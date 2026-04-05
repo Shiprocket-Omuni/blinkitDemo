@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" id="omuni-scan-theme" />
+  <title>Scan to accept — Omuni</title>
+  <link rel="stylesheet" href="omuni-app.css" />
+</head>
+<body class="omuni-app omuni-scan omuni-scan--camera">
+  <div class="omuni-scan__wrap">
+    <header class="omuni-scan-header">
+      <a href="process.html" class="omuni-scan-header__back" id="omuni-scan-back" aria-label="Back">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <div class="omuni-scan-header__spacer" aria-hidden="true"></div>
+      <button type="button" class="omuni-scan-header__icon-btn" aria-label="More">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+      </button>
+    </header>
+
+    <div class="omuni-scan-tabs" role="tablist" aria-label="Scan method">
+      <button type="button" class="omuni-scan-tab" data-scan-mode="camera" role="tab" id="tab-camera" aria-selected="true" aria-controls="panel-camera">
+        <span class="omuni-scan-tab__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </span>
+        <span class="omuni-scan-tab__label">Camera</span>
+      </button>
+      <button type="button" class="omuni-scan-tab" data-scan-mode="manual" role="tab" id="tab-manual" aria-selected="false" aria-controls="panel-manual">
+        <span class="omuni-scan-tab__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h4"/></svg>
+        </span>
+        <span class="omuni-scan-tab__label">Enter manually</span>
+      </button>
+    </div>
+
+    <section class="omuni-scan-panel omuni-scan-panel--camera is-active" id="panel-camera" role="tabpanel" aria-labelledby="tab-camera">
+      <div class="omuni-scan-viewport" aria-hidden="true"></div>
+      <p class="omuni-scan-hint">Scan the product barcode</p>
+    </section>
+
+    <section class="omuni-scan-panel omuni-scan-panel--manual" id="panel-manual" role="tabpanel" aria-labelledby="tab-manual">
+      <div class="omuni-scan-manual-body">
+        <div class="omuni-scan-barcode-row">
+          <svg class="omuni-scan-barcode" viewBox="0 0 220 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect fill="#1a1a1a" x="0" y="0" width="3" height="64"/>
+            <rect fill="#1a1a1a" x="6" y="0" width="1" height="64"/>
+            <rect fill="#1a1a1a" x="9" y="0" width="4" height="64"/>
+            <rect fill="#1a1a1a" x="16" y="0" width="2" height="64"/>
+            <rect fill="#1a1a1a" x="21" y="0" width="6" height="64"/>
+            <rect fill="#1a1a1a" x="30" y="0" width="1" height="64"/>
+            <rect fill="#1a1a1a" x="34" y="0" width="3" height="64"/>
+            <rect fill="#1a1a1a" x="40" y="0" width="5" height="64"/>
+            <rect fill="#1a1a1a" x="48" y="0" width="2" height="64"/>
+            <rect fill="#1a1a1a" x="53" y="0" width="1" height="64"/>
+            <rect fill="#1a1a1a" x="56" y="0" width="4" height="64"/>
+            <rect fill="#1a1a1a" x="64" y="0" width="3" height="64"/>
+            <rect fill="#1a1a1a" x="70" y="0" width="6" height="64"/>
+            <rect fill="#1a1a1a" x="79" y="0" width="2" height="64"/>
+            <rect fill="#1a1a1a" x="84" y="0" width="4" height="64"/>
+            <rect fill="#1a1a1a" x="91" y="0" width="1" height="64"/>
+            <rect fill="#1a1a1a" x="95" y="0" width="5" height="64"/>
+            <rect fill="#1a1a1a" x="103" y="0" width="3" height="64"/>
+            <rect fill="#1a1a1a" x="109" y="0" width="2" height="64"/>
+            <rect fill="#1a1a1a" x="114" y="0" width="6" height="64"/>
+            <rect fill="#1a1a1a" x="123" y="0" width="1" height="64"/>
+            <rect fill="#1a1a1a" x="127" y="0" width="4" height="64"/>
+            <rect fill="#1a1a1a" x="134" y="0" width="3" height="64"/>
+            <rect fill="#1a1a1a" x="140" y="0" width="5" height="64"/>
+            <rect fill="#1a1a1a" x="148" y="0" width="2" height="64"/>
+            <rect fill="#1a1a1a" x="153" y="0" width="4" height="64"/>
+            <rect fill="#1a1a1a" x="160" y="0" width="1" height="64"/>
+            <rect fill="#1a1a1a" x="164" y="0" width="6" height="64"/>
+            <rect fill="#1a1a1a" x="173" y="0" width="3" height="64"/>
+            <rect fill="#1a1a1a" x="179" y="0" width="2" height="64"/>
+            <rect fill="#1a1a1a" x="184" y="0" width="4" height="64"/>
+            <rect fill="#1a1a1a" x="191" y="0" width="1" height="64"/>
+            <rect fill="#1a1a1a" x="195" y="0" width="5" height="64"/>
+            <rect fill="#1a1a1a" x="203" y="0" width="3" height="64"/>
+            <rect fill="#1a1a1a" x="209" y="0" width="2" height="64"/>
+            <rect fill="#1a1a1a" x="214" y="0" width="6" height="64"/>
+          </svg>
+          <button type="button" class="omuni-scan-help" aria-label="Help">?</button>
+        </div>
+        <form class="omuni-scan-manual-form" id="omuni-scan-manual-form" autocomplete="off">
+          <label class="visually-hidden" for="omuni-barcode-input">Barcode number</label>
+          <input
+            id="omuni-barcode-input"
+            class="omuni-scan-manual-input"
+            type="text"
+            inputmode="numeric"
+            placeholder="Please enter barcode number"
+            maxlength="64"
+          />
+          <button type="submit" class="omuni-scan-manual-submit" id="omuni-barcode-submit" disabled aria-label="Submit barcode">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+        </form>
+      </div>
+    </section>
+  </div>
+  <style>
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+  <script>
+    (function () {
+      var back = document.getElementById("omuni-scan-back");
+      if (back) back.setAttribute("href", "process.html" + window.location.search);
+
+      var body = document.body;
+      var theme = document.getElementById("omuni-scan-theme");
+      var panelCamera = document.getElementById("panel-camera");
+      var panelManual = document.getElementById("panel-manual");
+      var tabCamera = document.getElementById("tab-camera");
+      var tabManual = document.getElementById("tab-manual");
+      var input = document.getElementById("omuni-barcode-input");
+      var submit = document.getElementById("omuni-barcode-submit");
+
+      function setMode(mode) {
+        var isCamera = mode === "camera";
+        body.classList.toggle("omuni-scan--camera", isCamera);
+        body.classList.toggle("omuni-scan--manual", !isCamera);
+        if (theme) theme.setAttribute("content", isCamera ? "#000000" : "#ffffff");
+
+        panelCamera.classList.toggle("is-active", isCamera);
+        panelManual.classList.toggle("is-active", !isCamera);
+
+        tabCamera.setAttribute("aria-selected", isCamera ? "true" : "false");
+        tabManual.setAttribute("aria-selected", !isCamera ? "true" : "false");
+      }
+
+      document.querySelectorAll("[data-scan-mode]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          setMode(btn.getAttribute("data-scan-mode"));
+        });
+      });
+
+      function syncSubmit() {
+        var v = input && input.value.trim();
+        submit.disabled = !v;
+      }
+
+      if (input) {
+        input.addEventListener("input", syncSubmit);
+        syncSubmit();
+      }
+
+      var form = document.getElementById("omuni-scan-manual-form");
+      if (form) {
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

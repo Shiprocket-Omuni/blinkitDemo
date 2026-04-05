@@ -1,0 +1,868 @@
+/* Omuni store fulfillment — mobile app UI (not Blinkit) */
+:root {
+  --omuni-red: #d32f2f;
+  --omuni-red-dark: #b71c1c;
+  --omuni-header-red: #c62828;
+  --omuni-bg: #f5f5f5;
+  --omuni-card: #ffffff;
+  --omuni-text: #1a1a1a;
+  --omuni-muted: #757575;
+  --omuni-label: #9e9e9e;
+  --omuni-orange: #e65100;
+  --omuni-timer-green: #2e7d32;
+  --omuni-bata-red: #c41e3a;
+  --omuni-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --omuni-nav-h: 56px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body.omuni-app {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--omuni-bg);
+  color: var(--omuni-text);
+  font-size: 15px;
+  line-height: 1.4;
+  max-width: 430px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.omuni-back-blinkit {
+  margin: 0;
+  padding: 10px 16px;
+  text-align: center;
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.omuni-back-blinkit__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid #0c831f;
+  background: rgba(12, 131, 31, 0.08);
+  color: #0a6b19;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.omuni-back-blinkit__link:active {
+  background: rgba(12, 131, 31, 0.14);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ----- App header (red) ----- */
+.omuni-app-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 52px;
+  padding: 10px 12px;
+  background: var(--omuni-header-red);
+  color: #fff;
+}
+
+.omuni-app-header__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin: -8px 0 -8px -4px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.omuni-app-header__back:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.omuni-app-header__title {
+  flex: 1;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.25;
+}
+
+.omuni-app-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.omuni-app-header__icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.omuni-app-header__icon-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ----- Home: brand bar ----- */
+.omuni-home-brand {
+  background: #e8e8e8;
+  padding: 16px 16px 14px;
+  text-align: center;
+}
+
+.omuni-home-brand__logo {
+  margin: 0 0 6px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--omuni-bata-red);
+  letter-spacing: 0.02em;
+}
+
+.omuni-home-brand__store {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--omuni-text);
+}
+
+/* ----- Home: sections ----- */
+.omuni-home-main {
+  padding: 12px 12px calc(var(--omuni-nav-h) + var(--omuni-safe-bottom) + 16px);
+}
+
+.omuni-section {
+  margin-bottom: 20px;
+}
+
+.omuni-section__title {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--omuni-text);
+}
+
+.omuni-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px 8px;
+}
+
+.omuni-icon-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 12px 6px;
+  background: var(--omuni-card);
+  border-radius: 12px;
+  border: 1px solid #eee;
+  min-height: 96px;
+  position: relative;
+  transition: background 0.15s ease;
+}
+
+.omuni-icon-tile:active {
+  background: #fafafa;
+}
+
+.omuni-icon-tile__glyph {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+}
+
+.omuni-icon-tile__glyph svg {
+  width: 32px;
+  height: 32px;
+}
+
+.omuni-icon-tile__label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #333;
+}
+
+.omuni-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--omuni-red);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ----- Bottom nav ----- */
+.omuni-bottom-nav {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: 100%;
+  max-width: 430px;
+  display: flex;
+  justify-content: space-around;
+  align-items: stretch;
+  min-height: var(--omuni-nav-h);
+  padding-bottom: var(--omuni-safe-bottom);
+  background: #fff;
+  border-top: 1px solid #e0e0e0;
+  z-index: 100;
+}
+
+.omuni-bottom-nav__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #9e9e9e;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.omuni-bottom-nav__item--active {
+  color: var(--omuni-red);
+}
+
+.omuni-bottom-nav__item--active .omuni-bottom-nav__icon {
+  color: var(--omuni-red);
+}
+
+.omuni-bottom-nav__icon {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  color: #9e9e9e;
+}
+
+.omuni-bottom-nav__item--active .omuni-bottom-nav__icon {
+  position: relative;
+}
+
+.omuni-bottom-nav__item--active .omuni-bottom-nav__badge {
+  position: absolute;
+  top: -4px;
+  right: -8px;
+}
+
+/* ----- Assigned list ----- */
+.omuni-page {
+  padding-bottom: calc(16px + var(--omuni-safe-bottom));
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #fff;
+}
+
+.omuni-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.omuni-assigned-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.omuni-assigned-list > li {
+  margin: 0;
+}
+
+.omuni-consignment-card {
+  display: grid;
+  grid-template-columns: 72px 1fr 1fr;
+  gap: 10px 12px;
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fff;
+  align-items: start;
+}
+
+.omuni-consignment-card--hyperlocal {
+  border: 2px solid #f9a825;
+  border-radius: 12px;
+  border-bottom: 2px solid #f9a825;
+  margin: 12px 12px 16px;
+  box-shadow: 0 0 0 1px rgba(249, 168, 37, 0.35), 0 2px 8px rgba(249, 168, 37, 0.15);
+  background: linear-gradient(180deg, #fffef5 0%, #fff 100%);
+}
+
+.omuni-field__value--type {
+  color: #f57f17;
+  font-weight: 800;
+}
+
+.omuni-consignment-card:active {
+  background: #fafafa;
+}
+
+.omuni-consignment-card__thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #f5f5f5;
+  grid-row: 1 / -1;
+  align-self: start;
+}
+
+a.omuni-consignment-card {
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.omuni-consignment-card__col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.omuni-field__label {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--omuni-label);
+  text-transform: capitalize;
+  margin-bottom: 2px;
+}
+
+.omuni-field__value {
+  font-size: 0.78rem;
+  font-weight: 700;
+  word-break: break-all;
+}
+
+.omuni-status {
+  color: var(--omuni-orange);
+  font-weight: 800;
+  font-size: 0.78rem;
+}
+
+.omuni-timer {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+  margin-top: 4px;
+}
+
+.omuni-timer__unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.omuni-timer__box {
+  min-width: 36px;
+  padding: 6px 4px;
+  border-radius: 6px;
+  background: var(--omuni-timer-green);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.omuni-timer__cap {
+  font-size: 0.6rem;
+  color: var(--omuni-muted);
+  text-transform: lowercase;
+}
+
+.omuni-sla-label {
+  font-size: 0.6rem;
+  color: var(--omuni-muted);
+  margin-bottom: 4px;
+}
+
+/* ----- Process consignment ----- */
+.omuni-process-meta {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 16px;
+  background: #fff;
+}
+
+.omuni-process-row {
+  grid-column: 1 / -1;
+}
+
+.omuni-ordered-by {
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.03em;
+  color: #9c27b0;
+  font-style: italic;
+}
+
+.omuni-value-block {
+  margin-top: 8px;
+}
+
+.omuni-value-block__hint {
+  font-size: 0.75rem;
+  color: var(--omuni-red);
+  font-weight: 600;
+}
+
+.omuni-value-block__amount {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+.omuni-product-card {
+  margin: 0 16px 16px;
+  padding: 14px;
+  background: #fafafa;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 12px;
+}
+
+.omuni-product-card__thumb {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #fff;
+}
+
+.omuni-product-card__brand {
+  font-size: 0.7rem;
+  color: var(--omuni-muted);
+  margin-bottom: 4px;
+}
+
+.omuni-product-card__name {
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.3;
+  margin: 0 0 12px;
+}
+
+.omuni-attr-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  font-size: 0.72rem;
+}
+
+.omuni-attr-grid span:first-child {
+  color: var(--omuni-label);
+}
+
+.omuni-attr-grid span:nth-child(2) {
+  font-weight: 700;
+}
+
+.omuni-actions {
+  padding: 16px;
+  padding-bottom: calc(16px + var(--omuni-safe-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.omuni-btn {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  font-family: inherit;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+
+.omuni-btn--primary {
+  background: var(--omuni-red);
+  color: #fff;
+}
+
+.omuni-btn--primary:active {
+  filter: brightness(0.95);
+}
+
+.omuni-btn--secondary {
+  background: #fff;
+  color: var(--omuni-text);
+  border: 1px solid #1a1a1a;
+}
+
+.omuni-btn--secondary:active {
+  background: #f5f5f5;
+}
+
+.omuni-process-timer-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+a.omuni-btn {
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+/* ----- Scan to accept (barcode) ----- */
+body.omuni-scan {
+  max-width: 430px;
+  margin-left: auto;
+  margin-right: auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.omuni-scan__wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.omuni-scan-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 52px;
+  padding: 10px 12px;
+}
+
+.omuni-scan--camera .omuni-scan-header {
+  background: #000;
+}
+
+.omuni-scan--manual .omuni-scan-header {
+  background: #fff;
+}
+
+.omuni-scan-header__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin: -8px 0 -8px -4px;
+  border: none;
+  background: transparent;
+  color: var(--omuni-header-red);
+  border-radius: 8px;
+}
+
+.omuni-scan-header__back:active {
+  opacity: 0.85;
+}
+
+.omuni-scan-header__spacer {
+  flex: 1;
+}
+
+.omuni-scan-header__icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  color: var(--omuni-header-red);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.omuni-scan-header__icon-btn:active {
+  opacity: 0.85;
+}
+
+.omuni-scan-tabs {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: stretch;
+  padding: 8px 16px 16px;
+  gap: 8px;
+}
+
+.omuni-scan--camera .omuni-scan-tabs {
+  background: #000;
+}
+
+.omuni-scan--manual .omuni-scan-tabs {
+  background: #fff;
+}
+
+.omuni-scan-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 12px 8px;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.omuni-scan-tab__icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.omuni-scan-tab__icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.omuni-scan-tab__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.omuni-scan--camera .omuni-scan-tab[data-scan-mode="camera"] .omuni-scan-tab__label {
+  color: var(--omuni-header-red);
+  font-weight: 800;
+}
+
+.omuni-scan--camera .omuni-scan-tab[data-scan-mode="camera"] .omuni-scan-tab__icon {
+  color: var(--omuni-header-red);
+}
+
+.omuni-scan--camera .omuni-scan-tab[data-scan-mode="manual"] .omuni-scan-tab__label {
+  color: #fff;
+  font-weight: 600;
+}
+
+.omuni-scan--camera .omuni-scan-tab[data-scan-mode="manual"] .omuni-scan-tab__icon {
+  color: #fff;
+}
+
+.omuni-scan--manual .omuni-scan-tab[data-scan-mode="manual"] .omuni-scan-tab__label {
+  color: var(--omuni-header-red);
+  font-weight: 800;
+}
+
+.omuni-scan--manual .omuni-scan-tab[data-scan-mode="manual"] .omuni-scan-tab__icon {
+  color: var(--omuni-header-red);
+}
+
+.omuni-scan--manual .omuni-scan-tab[data-scan-mode="camera"] .omuni-scan-tab__label {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.omuni-scan--manual .omuni-scan-tab[data-scan-mode="camera"] .omuni-scan-tab__icon {
+  color: #1a1a1a;
+}
+
+.omuni-scan-panel {
+  flex: 1;
+  display: none;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.omuni-scan-panel.is-active {
+  display: flex;
+}
+
+.omuni-scan--camera {
+  background: #000;
+  color: #fff;
+}
+
+.omuni-scan--manual {
+  background: #fff;
+  color: #1a1a1a;
+}
+
+.omuni-scan-viewport {
+  flex: 1;
+  min-height: 240px;
+  margin: 0 16px;
+  background: #0a0a0a;
+  border-radius: 4px;
+}
+
+.omuni-scan-hint {
+  flex-shrink: 0;
+  padding: 24px 20px calc(24px + var(--omuni-safe-bottom));
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.omuni-scan-manual-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 20px calc(32px + var(--omuni-safe-bottom));
+  gap: 28px;
+}
+
+.omuni-scan-barcode-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.omuni-scan-barcode {
+  display: block;
+  height: 72px;
+  width: auto;
+  max-width: 100%;
+}
+
+.omuni-scan-help {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: #e0e0e0;
+  color: #757575;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.omuni-scan-help:active {
+  background: #d0d0d0;
+}
+
+.omuni-scan-manual-form {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 2px solid #1a1a1a;
+  padding-bottom: 6px;
+}
+
+.omuni-scan-manual-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  min-width: 0;
+  padding: 8px 0;
+}
+
+.omuni-scan-manual-input::placeholder {
+  color: #bdbdbd;
+  font-weight: 400;
+}
+
+.omuni-scan-manual-submit {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: #e0e0e0;
+  color: #9e9e9e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: not-allowed;
+  font-family: inherit;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.omuni-scan-manual-submit:not(:disabled) {
+  background: var(--omuni-red);
+  color: #fff;
+  cursor: pointer;
+}
+
+.omuni-scan-manual-submit:not(:disabled):active {
+  filter: brightness(0.95);
+}
