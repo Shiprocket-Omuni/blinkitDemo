@@ -445,7 +445,7 @@ body.header--menu-open .header__menu-btn .header__menu-icon-close {
   background-color: #f8fafc;
   background-image:
     linear-gradient(105deg, rgba(2, 6, 23, 0.72) 0%, rgba(2, 6, 23, 0.56) 42%, rgba(2, 6, 23, 0.22) 62%, rgba(2, 6, 23, 0.08) 100%),
-    url("https://images.unsplash.com/photo-1520975661595-6453be3f7070?w=1400&h=560&fit=crop&auto=format&q=85");
+    url("assets/hero-apparels.png");
   background-size: cover;
   background-position: right center;
 }
@@ -1162,6 +1162,36 @@ body.omuni-on .cat-tile__meta {
   max-width: min(92vw, 340px);
 }
 
+.lifestyle-filter-search {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 8px 8px 10px;
+  margin: -6px -6px 6px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.lifestyle-filter-search__input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8125rem;
+  outline: none;
+}
+
+.lifestyle-filter-search__input:focus {
+  border-color: rgba(12, 131, 31, 0.55);
+  box-shadow: 0 0 0 3px rgba(12, 131, 31, 0.14);
+}
+
 /* Mobile: avoid overflow clipping so dropdown stays attached + visible */
 @media (max-width: 900px) {
   .lifestyle-filters__bar {
@@ -1230,6 +1260,59 @@ body.omuni-on .cat-tile__meta {
 
 .products--lifestyle {
   margin-top: 12px;
+}
+
+.lifestyle-stats {
+  max-width: 1280px;
+  margin: 10px auto 0;
+  padding: 0 16px;
+}
+
+.lifestyle-stats__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 2px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.lifestyle-stats__item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  color: var(--text);
+}
+
+.lifestyle-stats__label {
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.lifestyle-stats__sep {
+  color: rgba(100, 116, 139, 0.9);
+}
+
+.lifestyle-stats__value {
+  font-size: 0.9rem;
+  font-weight: 900;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .lifestyle-stats__inner {
+    padding: 6px 0 8px;
+    gap: 10px;
+  }
+  .lifestyle-stats__value {
+    font-size: 0.9rem;
+  }
 }
 
 .products__head--lifestyle {

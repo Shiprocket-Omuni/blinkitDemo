@@ -9,6 +9,8 @@
   var productsSection = document.getElementById("productsSection");
   var lifestyleFiltersRoot = document.getElementById("lifestyleFilters");
   var lifestyleSortEl = document.getElementById("lifestyleSort");
+  var omuniStoresCountEl = document.getElementById("omuniStoresCount");
+  var styleCountEl = document.getElementById("styleCount");
   /** @type {Record<string, true>} */
   var lifestyleBrandSelected = {};
   /** @type {Record<string, true>} */
@@ -568,6 +570,44 @@
     });
   }
 
+  function filterLifestylePanelOptions(panel, query) {
+    if (!panel) return;
+    var q = String(query || "").trim().toLowerCase();
+    panel.querySelectorAll(".lifestyle-filter-option").forEach(function (opt) {
+      var v =
+        opt.getAttribute("data-brand-filter") ||
+        opt.getAttribute("data-type-filter") ||
+        opt.getAttribute("data-delivery-by") ||
+        opt.getAttribute("data-sort-value") ||
+        "";
+      if (v === "all") {
+        opt.style.display = "";
+        return;
+      }
+      var label = (opt.textContent || "").trim().toLowerCase();
+      opt.style.display = !q || label.indexOf(q) !== -1 ? "" : "none";
+    });
+  }
+
+  function initLifestylePanelSearch(inputId, panelId) {
+    var input = document.getElementById(inputId);
+    var panel = document.getElementById(panelId);
+    if (!input || !panel) return;
+
+    input.addEventListener("click", function (e) {
+      e.stopPropagation();
+    });
+    input.addEventListener("keydown", function (e) {
+      e.stopPropagation();
+      if (e.key === "Escape") {
+        input.blur();
+      }
+    });
+    input.addEventListener("input", function () {
+      filterLifestylePanelOptions(panel, input.value);
+    });
+  }
+
   function applyLifestyleFacets() {
     if (!gridLifestyle) return;
     var q = (searchInput && searchInput.value ? searchInput.value : "").trim();
@@ -644,6 +684,53 @@
 
   window.applyLifestyleFacets = applyLifestyleFacets;
 
+  function formatInt(n) {
+    try {
+      return new Intl.NumberFormat("en-IN").format(n);
+    } catch (e) {
+      return String(n);
+    }
+  }
+
+  function updateLifestyleStats() {
+    // Omuni Stores
+    if (omuniStoresCountEl) {
+      var totalWh = typeof window.WAREHOUSE_TOTAL_COUNT === "number" ? window.WAREHOUSE_TOTAL_COUNT : 0;
+      var byBrand = window.WAREHOUSE_COUNTS_BY_BRAND || {};
+      var brandKeys = Object.keys(lifestyleBrandSelected);
+      var wh = 0;
+      if (brandKeys.length === 0) {
+        wh = totalWh;
+      } else {
+        brandKeys.forEach(function (b) {
+          wh += byBrand[b] ? Number(byBrand[b]) : 0;
+        });
+      }
+      omuniStoresCountEl.textContent = formatInt(wh);
+    }
+
+    // Style Count
+    if (styleCountEl) {
+      var rows = window.BRAND_CATEGORY_STYLE_ROWS || [];
+      var totalStyles =
+        typeof window.BRAND_CATEGORY_STYLE_TOTAL === "number" ? window.BRAND_CATEGORY_STYLE_TOTAL : 0;
+      var brandKeys2 = Object.keys(lifestyleBrandSelected);
+      var typeKeys = Object.keys(lifestyleTypeSelected);
+      var styles = 0;
+      if (brandKeys2.length === 0 && typeKeys.length === 0) {
+        styles = totalStyles;
+      } else {
+        for (var i = 0; i < rows.length; i++) {
+          var r = rows[i];
+          var okB = brandKeys2.length === 0 || !!lifestyleBrandSelected[r.brand];
+          var okT = typeKeys.length === 0 || !!lifestyleTypeSelected[r.type];
+          if (okB && okT) styles += Number(r.count) || 0;
+        }
+      }
+      styleCountEl.textContent = formatInt(styles);
+    }
+  }
+
   function applySearchFilter() {
     if (gridLifestyle) {
       applyLifestyleFacets();
@@ -677,6 +764,10 @@
       lifestyleDeliverySelected
     );
     updateLifestyleFilterPillStates();
+    updateLifestyleStats();
+
+    initLifestylePanelSearch("lifestyleSearchBrand", "lifestylePanelBrand");
+    initLifestylePanelSearch("lifestyleSearchType", "lifestylePanelType");
 
     lifestyleFiltersRoot.addEventListener("click", function (e) {
       var opt = e.target.closest(".lifestyle-filter-option");
@@ -716,6 +807,7 @@
           syncMultiSelectPanel(panel, "data-delivery-by", lifestyleDeliverySelected);
         }
         updateLifestyleFilterPillStates();
+        updateLifestyleStats();
         applySearchFilter();
         return;
       }
@@ -732,6 +824,11 @@
           p.hidden = false;
           trigger.setAttribute("aria-expanded", "true");
           positionLifestylePanel(trigger, p);
+          var searchInput = p.querySelector(".lifestyle-filter-search__input");
+          if (searchInput) {
+            searchInput.focus();
+            filterLifestylePanelOptions(p, searchInput.value);
+          }
         }
       }
     });
@@ -760,6 +857,7 @@
       var v = lifestyleSortEl.value;
       markActiveInPanel(document.getElementById("lifestylePanelSort"), "data-sort-value", v);
       updateLifestyleFilterPillStates();
+      updateLifestyleStats();
       applySearchFilter();
     });
   }
