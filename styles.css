@@ -1042,7 +1042,7 @@ body.omuni-on .cat-tile__meta {
 
 .lifestyle-filters {
   position: relative;
-  z-index: 5;
+  z-index: 60;
   padding: 0;
   border-bottom: 1px solid var(--border);
   background: var(--bg);
@@ -1058,6 +1058,16 @@ body.omuni-on .cat-tile__meta {
   overflow-y: visible;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
+}
+
+.lifestyle-filters__label {
+  flex: 0 0 auto;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin-right: 2px;
 }
 
 @media (min-width: 900px) {
@@ -1132,7 +1142,7 @@ body.omuni-on .cat-tile__meta {
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
-  z-index: 30;
+  z-index: 1000;
   min-width: 200px;
   max-width: min(92vw, 320px);
   max-height: min(70vh, 360px);
@@ -1150,6 +1160,15 @@ body.omuni-on .cat-tile__meta {
 .lifestyle-filter-panel--wide {
   min-width: 240px;
   max-width: min(92vw, 340px);
+}
+
+/* Mobile: avoid overflow clipping so dropdown stays attached + visible */
+@media (max-width: 900px) {
+  .lifestyle-filters__bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: visible;
+  }
 }
 
 .lifestyle-filter-option {
@@ -2599,10 +2618,13 @@ body.checkout-open {
     display: flex;
     align-items: center;
     gap: 10px;
+    width: 100%;
+    min-width: 0;
   }
 
   .header__search-wrap .search {
     flex: 1;
+    min-width: 0;
     max-width: none;
     margin: 0;
   }
@@ -2610,8 +2632,31 @@ body.checkout-open {
   .header__search-wrap .nav-cart--mobile {
     display: inline-flex;
     flex-shrink: 0;
+    min-width: 0;
+    max-width: 132px;
+    gap: 8px;
     padding: 8px 12px;
     border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .header__search-wrap .nav-cart--mobile .nav-cart__text {
+    min-width: 0;
+  }
+
+  .header__search-wrap .nav-cart--mobile .nav-cart__line1 {
+    font-size: 0.75rem;
+  }
+
+  .header__search-wrap .nav-cart--mobile .nav-cart__line2 {
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 380px) {
+    .header__search-wrap .nav-cart--mobile {
+      max-width: 104px;
+      padding: 8px 10px;
+    }
   }
 
   .header__nav > .nav-cart {

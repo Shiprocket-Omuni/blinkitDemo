@@ -168,17 +168,7 @@
         <option value="discount-desc">Discount (high to low)</option>
       </select>
       <div class="lifestyle-filters__bar">
-        <div class="lifestyle-filter-dd">
-          <button type="button" class="lifestyle-filter-pill" id="lifestyleTriggerFilters" aria-expanded="false" aria-haspopup="listbox" aria-controls="lifestylePanelFilters">
-            <svg class="lifestyle-filter-pill__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="18" cy="12" r="2" stroke="currentColor" stroke-width="2"/></svg>
-            <span>Filters</span>
-            <svg class="lifestyle-filter-pill__chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </button>
-          <div class="lifestyle-filter-panel" id="lifestylePanelFilters" role="menu" hidden>
-            <button type="button" class="lifestyle-filter-option" role="menuitem" id="lifestyleResetAllOption">Clear all filters</button>
-          </div>
-        </div>
-
+        <span class="lifestyle-filters__label" aria-hidden="true">Filters</span>
         <div class="lifestyle-filter-dd">
           <button type="button" class="lifestyle-filter-pill" id="lifestyleTriggerSort" aria-expanded="false" aria-haspopup="listbox" aria-controls="lifestylePanelSort">
             <svg class="lifestyle-filter-pill__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 4v16M7 4l3 3M7 4l-3 3M17 20V4m0 16l3-3m-3 3l-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -232,6 +222,20 @@
             <button type="button" class="lifestyle-filter-option" role="option" data-type-filter="Shirts" aria-selected="false">Shirts</button>
             <button type="button" class="lifestyle-filter-option" role="option" data-type-filter="Shorts &amp; Trousers" aria-selected="false">Shorts &amp; Trousers</button>
             <button type="button" class="lifestyle-filter-option" role="option" data-type-filter="T-Shirts &amp; Polos" aria-selected="false">T-Shirts &amp; Polos</button>
+          </div>
+        </div>
+
+        <div class="lifestyle-filter-dd">
+          <button type="button" class="lifestyle-filter-pill" id="lifestyleTriggerDeliveryBy" aria-expanded="false" aria-haspopup="listbox" aria-controls="lifestylePanelDeliveryBy">
+            <span>Delivery By</span>
+            <svg class="lifestyle-filter-pill__chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <div class="lifestyle-filter-panel" id="lifestylePanelDeliveryBy" role="listbox" hidden>
+            <button type="button" class="lifestyle-filter-option lifestyle-filter-option--active" role="option" data-delivery-by="all" aria-selected="true">Any time</button>
+            <button type="button" class="lifestyle-filter-option" role="option" data-delivery-by="30" aria-selected="false">30 Mins</button>
+            <button type="button" class="lifestyle-filter-option" role="option" data-delivery-by="60" aria-selected="false">60 Mins</button>
+            <button type="button" class="lifestyle-filter-option" role="option" data-delivery-by="120" aria-selected="false">2 Hour</button>
+            <button type="button" class="lifestyle-filter-option" role="option" data-delivery-by="same-day" aria-selected="false">Same Day Delivery</button>
           </div>
         </div>
       </div>
