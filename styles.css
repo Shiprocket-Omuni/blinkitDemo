@@ -812,6 +812,29 @@ body.omuni-on .cat-tile__meta {
   }
 }
 
+/* Keep location + hint aligned on mobile */
+.page-lifestyle .location-stack {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .page-lifestyle .header__left {
+    align-items: flex-start;
+  }
+
+  .page-lifestyle .location-stack .location--header-slab {
+    width: 100%;
+  }
+
+  .page-lifestyle .lifestyle-onboarding-hint {
+    max-width: none;
+    margin-top: 4px;
+  }
+}
+
 .network-health__header--with-omuni-toggle {
   display: flex;
   flex-direction: column;
