@@ -1701,10 +1701,15 @@
   }
 
   function formatLocationLine(loc) {
-    if (!loc || !loc.pincode) return "";
+    if (!loc) return "";
     var pin = String(loc.pincode || "").trim();
     var place = String(loc.place || "").trim();
     var city = String(loc.city || "").trim();
+    var hasLatLng = typeof loc.lat === "number" && typeof loc.lng === "number";
+    if (!pin) {
+      // If we have coordinates but no resolved pincode yet, still show a useful state.
+      return hasLatLng ? "Using your location" : "";
+    }
     var left = place && city && place.toLowerCase() !== city.toLowerCase() ? place + ", " + city : place || city;
     left = left || "Delivery area";
     return left + " • " + pin;
