@@ -321,7 +321,7 @@
   function isDefaultUnfilteredView() {
     var brandSel = window.lifestyleBrandSelected && Object.keys(window.lifestyleBrandSelected).length;
     var typeSel = window.lifestyleTypeSelected && Object.keys(window.lifestyleTypeSelected).length;
-    var delSel = window.lifestyleDeliverySelected && Object.keys(window.lifestyleDeliverySelected).length;
+    var delSel = window.lifestyleDeliveryBy && String(window.lifestyleDeliveryBy).trim().length;
     var q = "";
     var inp = document.getElementById("searchInput");
     if (inp && inp.value) q = String(inp.value).trim();

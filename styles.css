@@ -1099,7 +1099,7 @@ body.omuni-on .cat-tile__meta {
   align-items: center;
   gap: 6px;
   min-height: 40px;
-  padding: 0 14px;
+  padding: 6px 14px;
   border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--bg);
@@ -1108,7 +1108,6 @@ body.omuni-on .cat-tile__meta {
   font-weight: 600;
   color: var(--text);
   cursor: pointer;
-  white-space: nowrap;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
@@ -1117,14 +1116,64 @@ body.omuni-on .cat-tile__meta {
   background: #fafbfc;
 }
 
+/* Active filter: stronger CTA + readable applied values in __summary */
 .lifestyle-filter-pill--dirty {
-  border-color: rgba(12, 131, 31, 0.45);
-  background: rgba(12, 131, 31, 0.06);
+  border-color: rgba(12, 131, 31, 0.58);
+  background: linear-gradient(165deg, rgba(12, 131, 31, 0.11) 0%, rgba(12, 131, 31, 0.05) 100%);
+  box-shadow: 0 0 0 1px rgba(12, 131, 31, 0.14);
+}
+
+.lifestyle-filter-pill--dirty .lifestyle-filter-pill__label {
+  color: rgba(15, 23, 42, 0.88);
+}
+
+.lifestyle-filter-pill--dirty .lifestyle-filter-pill__chevron {
+  opacity: 0.9;
+  color: rgb(12, 131, 31);
+}
+
+.lifestyle-filter-pill--dirty .lifestyle-filter-pill__icon {
+  color: rgb(12, 131, 31);
+  opacity: 1;
 }
 
 .lifestyle-filter-pill[aria-expanded="true"] {
-  border-color: rgba(12, 131, 31, 0.55);
-  box-shadow: 0 0 0 1px rgba(12, 131, 31, 0.2);
+  border-color: rgba(12, 131, 31, 0.62);
+  box-shadow: 0 0 0 2px rgba(12, 131, 31, 0.18);
+}
+
+.lifestyle-filter-pill__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  min-width: 0;
+  text-align: left;
+}
+
+.lifestyle-filter-pill__label {
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.lifestyle-filter-pill__summary {
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  color: rgb(10, 110, 26);
+  max-width: min(36vw, 200px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 900px) {
+  .lifestyle-filter-pill__summary {
+    max-width: 200px;
+  }
 }
 
 .lifestyle-filter-pill__icon {
@@ -1259,59 +1308,94 @@ body.omuni-on .cat-tile__meta {
 }
 
 .products--lifestyle {
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
+/* Stats row — above filters so dropdowns never cover the numbers */
 .lifestyle-stats {
   max-width: 1280px;
-  margin: 10px auto 0;
-  padding: 0 16px;
+  margin: 0 auto;
+  padding: 12px 16px 10px;
 }
 
 .lifestyle-stats__inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 6px 2px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  align-items: stretch;
 }
 
 .lifestyle-stats__item {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
   min-width: 0;
-  color: var(--text);
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: linear-gradient(165deg, #f8fafc 0%, #f1f5f9 55%, #eef2f7 100%);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 .lifestyle-stats__label {
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0.02em;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: rgba(71, 85, 105, 0.92);
   white-space: nowrap;
-}
-
-.lifestyle-stats__sep {
-  color: rgba(100, 116, 139, 0.9);
+  line-height: 1.2;
 }
 
 .lifestyle-stats__value {
-  font-size: 0.9rem;
+  font-size: clamp(1rem, 3.8vw, 1.2rem);
   font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
   color: var(--text);
+  line-height: 1.15;
   white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .lifestyle-stats {
+    padding: 14px 20px 12px;
+  }
+
+  .lifestyle-stats__inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .lifestyle-stats__item {
+    padding: 14px 18px;
+    border-radius: 16px;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .lifestyle-stats__label {
+    font-size: 0.72rem;
+  }
+
+  .lifestyle-stats__value {
+    font-size: 1.35rem;
+  }
 }
 
 @media (max-width: 600px) {
   .lifestyle-stats__inner {
-    padding: 6px 0 8px;
-    gap: 10px;
+    gap: 8px;
   }
-  .lifestyle-stats__value {
-    font-size: 0.9rem;
+
+  .lifestyle-stats__item {
+    padding: 10px 12px;
   }
 }
 

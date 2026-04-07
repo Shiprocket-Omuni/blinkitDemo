@@ -160,6 +160,19 @@
       </div>
     </section>
 
+    <section class="lifestyle-stats" aria-label="Catalog stats">
+      <div class="lifestyle-stats__inner">
+        <div class="lifestyle-stats__item" role="status" aria-live="polite">
+          <span class="lifestyle-stats__label">Omuni Stores</span>
+          <span class="lifestyle-stats__value" id="omuniStoresCount">—</span>
+        </div>
+        <div class="lifestyle-stats__item" role="status" aria-live="polite">
+          <span class="lifestyle-stats__label">Style Added</span>
+          <span class="lifestyle-stats__value" id="styleCount">—</span>
+        </div>
+      </div>
+    </section>
+
     <section class="lifestyle-filters" id="lifestyleFilters" aria-label="Sort and filters">
       <select id="lifestyleSort" class="u-visually-hidden" tabindex="-1" aria-hidden="true">
         <option value="relevance" selected>Relevance</option>
@@ -172,7 +185,10 @@
 
         <div class="lifestyle-filter-dd">
           <button type="button" class="lifestyle-filter-pill" id="lifestyleTriggerDeliveryBy" aria-expanded="false" aria-haspopup="listbox" aria-controls="lifestylePanelDeliveryBy">
-            <span>Delivery By</span>
+            <span class="lifestyle-filter-pill__text">
+              <span class="lifestyle-filter-pill__label">Delivery By</span>
+              <span class="lifestyle-filter-pill__summary" id="lifestyleSummaryDeliveryBy" hidden></span>
+            </span>
             <svg class="lifestyle-filter-pill__chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
           <div class="lifestyle-filter-panel" id="lifestylePanelDeliveryBy" role="listbox" hidden>
@@ -186,7 +202,10 @@
 
         <div class="lifestyle-filter-dd">
           <button type="button" class="lifestyle-filter-pill" id="lifestyleTriggerBrand" aria-expanded="false" aria-haspopup="listbox" aria-controls="lifestylePanelBrand">
-            <span>Brand</span>
+            <span class="lifestyle-filter-pill__text">
+              <span class="lifestyle-filter-pill__label">Brand</span>
+              <span class="lifestyle-filter-pill__summary" id="lifestyleSummaryBrand" hidden></span>
+            </span>
             <svg class="lifestyle-filter-pill__chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
           <div class="lifestyle-filter-panel lifestyle-filter-panel--wide" id="lifestylePanelBrand" role="listbox" hidden>
@@ -218,7 +237,10 @@
 
         <div class="lifestyle-filter-dd">
           <button type="button" class="lifestyle-filter-pill" id="lifestyleTriggerType" aria-expanded="false" aria-haspopup="listbox" aria-controls="lifestylePanelType">
-            <span>Type</span>
+            <span class="lifestyle-filter-pill__text">
+              <span class="lifestyle-filter-pill__label">Type</span>
+              <span class="lifestyle-filter-pill__summary" id="lifestyleSummaryType" hidden></span>
+            </span>
             <svg class="lifestyle-filter-pill__chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
           <div class="lifestyle-filter-panel lifestyle-filter-panel--wide" id="lifestylePanelType" role="listbox" hidden>
@@ -357,7 +379,10 @@
         <div class="lifestyle-filter-dd">
           <button type="button" class="lifestyle-filter-pill" id="lifestyleTriggerSort" aria-expanded="false" aria-haspopup="listbox" aria-controls="lifestylePanelSort">
             <svg class="lifestyle-filter-pill__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 4v16M7 4l3 3M7 4l-3 3M17 20V4m0 16l3-3m-3 3l-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            <span>Sort</span>
+            <span class="lifestyle-filter-pill__text">
+              <span class="lifestyle-filter-pill__label">Sort</span>
+              <span class="lifestyle-filter-pill__summary" id="lifestyleSummarySort" hidden></span>
+            </span>
             <svg class="lifestyle-filter-pill__chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
           <div class="lifestyle-filter-panel" id="lifestylePanelSort" role="listbox" aria-labelledby="lifestyleTriggerSort" hidden>
@@ -369,21 +394,6 @@
         </div>
 
         <!-- Delivery By moved to first on the left -->
-      </div>
-    </section>
-
-    <section class="lifestyle-stats" aria-label="Catalog stats">
-      <div class="lifestyle-stats__inner">
-        <div class="lifestyle-stats__item" role="status" aria-live="polite">
-          <span class="lifestyle-stats__label">Omuni Stores</span>
-          <span class="lifestyle-stats__sep" aria-hidden="true">:</span>
-          <span class="lifestyle-stats__value" id="omuniStoresCount">—</span>
-        </div>
-        <div class="lifestyle-stats__item" role="status" aria-live="polite">
-          <span class="lifestyle-stats__label">Style Count</span>
-          <span class="lifestyle-stats__sep" aria-hidden="true">:</span>
-          <span class="lifestyle-stats__value" id="styleCount">—</span>
-        </div>
       </div>
     </section>
 
