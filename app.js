@@ -978,26 +978,75 @@
       if (brandKeys2.length === 0 && typeKeys.length === 0 && deliveryKeys2.length === 0) {
         styles = totalStyles;
       } else {
-        var minKmByBrand = dist && dist.minKmByBrand ? dist.minKmByBrand : null;
+        // Option B: scale style counts by how many stores remain per brand after Delivery By filter.
+        // This avoids the "if 1 store exists, count all styles" issue.
+        var userLoc2 = getUserLatLng();
+        var stores2 = window.WAREHOUSE_STORES || [];
+        var canScaleByStores =
+          deliveryKeys2.length > 0 && userLoc2 && stores2.length && dist && dist.minKmByBrand;
+
+        var totalStoresByBrand = {};
+        var eligibleStoresByBrand = {};
+
+        if (canScaleByStores) {
+          for (var si2 = 0; si2 < stores2.length; si2++) {
+            var st2 = stores2[si2];
+            if (!st2 || !st2.brand) continue;
+            var b2 = st2.brand;
+            totalStoresByBrand[b2] = (totalStoresByBrand[b2] || 0) + 1;
+            var km2 = haversineKm(userLoc2.lat, userLoc2.lng, Number(st2.lat), Number(st2.lng));
+            if (storeKmMatchesAnyDeliveryFilter(km2, deliveryKeys2)) {
+              eligibleStoresByBrand[b2] = (eligibleStoresByBrand[b2] || 0) + 1;
+            }
+          }
+        }
+
+        // Smoothing to avoid overly aggressive drops when store coverage is small.
+        // Higher alpha => less aggressive drop (keeps styles higher with few eligible stores).
+        var alpha = 2.6;
+        function brandCoverageFactor(brand) {
+          if (!canScaleByStores) return 1;
+          var tot = totalStoresByBrand[brand] || 0;
+          var elig = eligibleStoresByBrand[brand] || 0;
+          if (tot <= 0) return 1; // best-effort fallback
+          if (elig <= 0) return 0;
+          var ratio = elig / tot;
+          // 1 - (1 - ratio)^alpha
+          return 1 - Math.pow(1 - ratio, alpha);
+        }
+
+        // If we can't compute store-based scaling (no lat/lng, etc.), keep the old best-effort
+        // "brand has any eligible store" gating, so the stat still behaves reasonably.
+        var minKmByBrand2 = dist && dist.minKmByBrand ? dist.minKmByBrand : null;
+
         for (var i = 0; i < rows.length; i++) {
           var r = rows[i];
           var okB = brandKeys2.length === 0 || !!lifestyleBrandSelected[r.brand];
           var okT = typeKeys.length === 0 || !!lifestyleTypeSelected[r.type];
-          var okD = true;
-          if (deliveryKeys2.length > 0) {
-            // Best-effort: if we can't compute distances, don't zero-out the stat.
-            if (!minKmByBrand) {
-              okD = true;
-            } else {
-              var mk = minKmByBrand[r.brand];
-              if (mk == null) okD = true;
-              else okD = minKmMatchesAnyDeliveryFilter(mk, deliveryKeys2);
-            }
+          if (!okB || !okT) continue;
+
+          var base = Number(r.count) || 0;
+          if (deliveryKeys2.length === 0) {
+            styles += base;
+            continue;
           }
-          if (okB && okT && okD) styles += Number(r.count) || 0;
+
+          if (canScaleByStores) {
+            styles += base * brandCoverageFactor(r.brand);
+          } else {
+            var okD2 = true;
+            if (!minKmByBrand2) {
+              okD2 = true;
+            } else {
+              var mk2 = minKmByBrand2[r.brand];
+              if (mk2 == null) okD2 = true;
+              else okD2 = minKmMatchesAnyDeliveryFilter(mk2, deliveryKeys2);
+            }
+            if (okD2) styles += base;
+          }
         }
       }
-      styleCountEl.textContent = formatInt(styles);
+      styleCountEl.textContent = formatInt(Math.round(styles));
     }
   }
 
