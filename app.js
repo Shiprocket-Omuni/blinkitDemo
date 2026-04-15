@@ -689,6 +689,334 @@
     return null;
   }
 
+  var _warehouseStoresLoadPromise = null;
+  function ensureWarehouseStoresLoaded() {
+    if (window.WAREHOUSE_STORES && window.WAREHOUSE_STORES.length) {
+      return Promise.resolve(window.WAREHOUSE_STORES);
+    }
+    if (_warehouseStoresLoadPromise) return _warehouseStoresLoadPromise;
+
+    _warehouseStoresLoadPromise = new Promise(function (resolve) {
+      // If XLSX is not available (CDN blocked), we can't parse the Excel.
+      if (typeof window.XLSX === "undefined") {
+        resolve(window.WAREHOUSE_STORES || []);
+        return;
+      }
+      fetch("Warehouse_Data.xls", { cache: "no-store" })
+        .then(function (res) {
+          if (!res.ok) throw new Error("Warehouse_Data.xls not found");
+          return res.arrayBuffer();
+        })
+        .then(function (buf) {
+          var wb = window.XLSX.read(buf, { type: "array" });
+          var sheetName = wb && wb.SheetNames && wb.SheetNames[0] ? wb.SheetNames[0] : null;
+          var ws = sheetName ? wb.Sheets[sheetName] : null;
+          if (!ws) return [];
+          var rows = window.XLSX.utils.sheet_to_json(ws, { defval: "" });
+          var stores = [];
+          for (var i = 0; i < rows.length; i++) {
+            var r = rows[i] || {};
+            var brand = (r.Brand || r.brand || "").toString().trim();
+            var fcId = (r.fc_id || r.FC_ID || r.fcId || r["fc id"] || "").toString().trim();
+            var lat = Number(r.latitude || r.lat || r.Latitude || "");
+            var lng = Number(r.longitude || r.lng || r.Longitude || "");
+            if (!brand || !fcId) continue;
+            if (isNaN(lat) || isNaN(lng)) {
+              // Keep record even without coords; it can still show up when Delivery By isn't applied.
+              lat = null;
+              lng = null;
+            }
+            stores.push({ brand: brand, fc_id: fcId, lat: lat, lng: lng });
+          }
+          window.WAREHOUSE_STORES = stores;
+          return stores;
+        })
+        .then(function (stores) {
+          resolve(stores || []);
+        })
+        .catch(function () {
+          resolve(window.WAREHOUSE_STORES || []);
+        });
+    });
+
+    return _warehouseStoresLoadPromise;
+  }
+
+  function eligibleOmuniStoresForCurrentFilters(stores) {
+    var list = stores || window.WAREHOUSE_STORES || [];
+    if (!list || !list.length) return [];
+
+    var brandKeys = Object.keys(lifestyleBrandSelected || {});
+    var deliveryKeys = lifestyleDeliveryBy ? [lifestyleDeliveryBy] : [];
+    var userLoc = getUserLatLng();
+
+    function hasValidCoords(st) {
+      return (
+        st &&
+        typeof st.lat === "number" &&
+        typeof st.lng === "number" &&
+        !isNaN(st.lat) &&
+        !isNaN(st.lng)
+      );
+    }
+
+    var out = [];
+    for (var i = 0; i < list.length; i++) {
+      var st = list[i];
+      if (!st) continue;
+      var b = st.brand || st.Brand || "";
+      if (brandKeys.length) {
+        // Match selection keys regardless of case/pluralization differences.
+        var okBrand = false;
+        for (var bi = 0; bi < brandKeys.length; bi++) {
+          if (normalizeBrandKey(brandKeys[bi]) === normalizeBrandKey(b)) {
+            okBrand = true;
+            break;
+          }
+        }
+        if (!okBrand) continue;
+      }
+
+      if (deliveryKeys.length > 0) {
+        // Match the counter behavior: when Delivery By is active and user location is known,
+        // exclude stores without valid coordinates (they can't be distance-filtered).
+        if (userLoc) {
+          if (!hasValidCoords(st)) continue;
+          var km = haversineKm(userLoc.lat, userLoc.lng, Number(st.lat), Number(st.lng));
+          if (!storeKmMatchesAnyDeliveryFilter(km, deliveryKeys)) continue;
+        }
+      }
+
+      out.push(st);
+    }
+    return out;
+  }
+
+  function eligibleOmuniStoresForBrand(stores, brandOverride) {
+    var list = stores || window.WAREHOUSE_STORES || [];
+    if (!list || !list.length) return [];
+    var bNeedle = normalizeBrandKey(brandOverride);
+    if (!bNeedle) return eligibleOmuniStoresForCurrentFilters(list);
+
+    var deliveryKeys = lifestyleDeliveryBy ? [lifestyleDeliveryBy] : [];
+    var userLoc = getUserLatLng();
+    function hasValidCoords(st) {
+      return (
+        st &&
+        typeof st.lat === "number" &&
+        typeof st.lng === "number" &&
+        !isNaN(st.lat) &&
+        !isNaN(st.lng)
+      );
+    }
+    var out = [];
+    for (var i = 0; i < list.length; i++) {
+      var st = list[i];
+      if (!st) continue;
+      var b = normalizeBrandKey(st.brand || st.Brand || "");
+      if (b !== bNeedle) continue;
+
+      if (deliveryKeys.length > 0) {
+        if (userLoc) {
+          if (!hasValidCoords(st)) continue;
+          var km = haversineKm(userLoc.lat, userLoc.lng, Number(st.lat), Number(st.lng));
+          if (!storeKmMatchesAnyDeliveryFilter(km, deliveryKeys)) continue;
+        }
+      }
+      out.push(st);
+    }
+    return out;
+  }
+
+  function splitAlphaNumForUi(name) {
+    // Goal: sort A→Z, and keep numbers at the end in UI.
+    // Also push "numeric-only" names to the end of the list (so no numbers appear on top).
+    var raw = String(name || "").trim().replace(/\s+/g, " ");
+    if (!raw) return { display: "", alpha: "", num: null, isNumericOnly: true };
+
+    function hasLetters(s) {
+      return /[a-z]/i.test(String(s || ""));
+    }
+
+    // If string starts with a number, move it to the end (when there's a text part).
+    var lead = raw.match(/^(\d+)\s*[-–—:]?\s*(.+)$/);
+    if (lead) {
+      var n1 = parseInt(lead[1], 10);
+      var rest1 = String(lead[2] || "").trim();
+      var numericOnly1 = !hasLetters(rest1);
+      return {
+        display: numericOnly1 ? raw : rest1 + " " + n1,
+        alpha: numericOnly1 ? "" : rest1,
+        num: isNaN(n1) ? null : n1,
+        isNumericOnly: numericOnly1,
+      };
+    }
+
+    // If string ends with a number, keep it but split for natural sort.
+    var tail = raw.match(/^(.*?)[\s-–—:]*([0-9]+)$/);
+    if (tail) {
+      var rest2 = String(tail[1] || "").trim();
+      var n2 = parseInt(tail[2], 10);
+      var numericOnly2 = !hasLetters(rest2);
+      return {
+        display: rest2 ? rest2 + " " + n2 : raw,
+        alpha: numericOnly2 ? "" : rest2,
+        num: isNaN(n2) ? null : n2,
+        isNumericOnly: numericOnly2,
+      };
+    }
+
+    return { display: raw, alpha: raw, num: null, isNumericOnly: !hasLetters(raw) };
+  }
+
+  function uniqueSortedStoreNames(stores) {
+    var seen = {};
+    var items = [];
+    (stores || []).forEach(function (st) {
+      var rawName = st && st.store_name != null ? String(st.store_name).trim() : "";
+      var fallback = st && (st.fc_id || st.fcId || st.FC_ID) ? String(st.fc_id || st.fcId || st.FC_ID).trim() : "";
+      var picked = rawName || fallback;
+      if (!picked) return;
+
+      var parts = splitAlphaNumForUi(picked);
+      var disp = parts.display || picked;
+      if (!disp || seen[disp]) return;
+      seen[disp] = true;
+      items.push({ display: disp, alpha: parts.alpha || disp, num: parts.num });
+    });
+
+    items.sort(function (a, b) {
+      // Always keep numeric-only names at the end.
+      if (!!a.isNumericOnly !== !!b.isNumericOnly) return a.isNumericOnly ? 1 : -1;
+      var aa = String(a.alpha || "").toLowerCase();
+      var bb = String(b.alpha || "").toLowerCase();
+      var c = aa.localeCompare(bb, undefined, { sensitivity: "base" });
+      if (c !== 0) return c;
+      var an = a.num == null ? Number.POSITIVE_INFINITY : a.num;
+      var bn = b.num == null ? Number.POSITIVE_INFINITY : b.num;
+      if (an !== bn) return an - bn;
+      return String(a.display).localeCompare(String(b.display), undefined, { sensitivity: "base" });
+    });
+
+    return items.map(function (x) {
+      return x.display;
+    });
+  }
+
+  function normalizeBrandKey(brandRaw) {
+    var b = String(brandRaw || "")
+      .trim()
+      .replace(/\s+/g, " ")
+      .toUpperCase();
+    // UI sometimes shows "BLACKBERRYS" while Excel has "BLACKBERRY".
+    if (b === "BLACKBERRYS") return "BLACKBERRY";
+    return b;
+  }
+
+  function prettifyBrandLabel(brandRaw) {
+    var b = String(brandRaw || "").trim();
+    if (!b) return "";
+    var u = normalizeBrandKey(b);
+    if (u === "BLACKBERRY") return "BLACKBERRYS";
+    return b;
+  }
+
+  function wireStoresInfoModal() {
+    var infoBtn = document.getElementById("omuniStoresInfoBtn");
+    var modal = document.getElementById("storesListModal");
+    if (!infoBtn || !modal) return;
+
+    var titleEl = document.getElementById("storesModalTitle");
+    var listEl = document.getElementById("storesModalList");
+    var metaEl = document.getElementById("storesModalMeta");
+    var hintEl = document.getElementById("storesModalHint");
+
+    function close() {
+      modal.hidden = true;
+      document.body.classList.remove("stores-modal-open");
+    }
+
+    function openWithBrand(brandOverride) {
+      modal.hidden = false;
+      document.body.classList.add("stores-modal-open");
+      // Reset quickly
+      if (listEl) listEl.innerHTML = '<div class="stores-modal__empty">Loading store list…</div>';
+      if (metaEl) metaEl.textContent = "";
+      if (hintEl) hintEl.textContent = "Showing stores based on current filters.";
+      if (titleEl) {
+        titleEl.textContent = brandOverride ? "Available stores for " + prettifyBrandLabel(brandOverride) : "Available stores";
+      }
+
+      ensureWarehouseStoresLoaded().then(function (stores) {
+        if (!stores || !stores.length) {
+          if (listEl) {
+            listEl.innerHTML =
+              '<div class="stores-modal__empty">Couldn’t load store data. Make sure <strong>warehouse-stores.js</strong> is present (or refresh if it was just generated).</div>';
+          }
+          return;
+        }
+        var eligible = eligibleOmuniStoresForBrand(stores, brandOverride);
+        var ids = uniqueSortedStoreNames(eligible);
+        var brandKeys = Object.keys(lifestyleBrandSelected || {});
+        var deliveryKey = lifestyleDeliveryBy ? String(lifestyleDeliveryBy) : "";
+        var hasLoc = !!getUserLatLng();
+
+        if (metaEl) {
+          var parts = [];
+          parts.push(ids.length + " store" + (ids.length === 1 ? "" : "s"));
+          if (brandOverride) parts.push("Brand: " + prettifyBrandLabel(brandOverride));
+          else if (brandKeys.length) parts.push("Brand: " + brandKeys.join(", "));
+          if (deliveryKey) parts.push("Delivery By: " + labelForLifestyleDeliveryBy(deliveryKey));
+          metaEl.textContent = parts.join(" · ");
+        }
+        if (hintEl && deliveryKey && !hasLoc) {
+          hintEl.textContent =
+            "Delivery By filtering needs a delivery location. Set a location to filter stores by delivery time.";
+        }
+
+        if (!listEl) return;
+        if (!ids.length) {
+          listEl.innerHTML = '<div class="stores-modal__empty">No stores match the current filters.</div>';
+          return;
+        }
+        listEl.innerHTML = "";
+        ids.forEach(function (id) {
+          var d = document.createElement("div");
+          d.className = "stores-modal__pill";
+          d.textContent = id;
+          listEl.appendChild(d);
+        });
+      });
+    }
+
+    infoBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      openWithBrand("");
+    });
+
+    modal.querySelectorAll("[data-close]").forEach(function (el) {
+      el.addEventListener("click", function () {
+        close();
+      });
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && modal && !modal.hidden) close();
+    });
+
+    // Clicking store icon on a product card opens the same modal filtered by that card's brand.
+    document.addEventListener("click", function (e) {
+      var storeBtn = e.target && e.target.closest ? e.target.closest(".product-card__store") : null;
+      if (!storeBtn) return;
+      var card = storeBtn.closest ? storeBtn.closest(".product-card") : null;
+      var brand = card ? String(card.getAttribute("data-brand") || "").trim() : "";
+      e.preventDefault();
+      e.stopPropagation();
+      openWithBrand(brand);
+    });
+  }
+
   function computeBrandDistanceBuckets() {
     var user = getUserLatLng();
     var stores = window.WAREHOUSE_STORES || [];
@@ -1972,6 +2300,7 @@
     }
   });
 
+  wireStoresInfoModal();
   initProductCards();
   renderCartDrawer();
   setActiveCategory("all");

@@ -5,6 +5,13 @@
   var CLOCK_SVG =
     '<svg class="product-card__clock" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 
+  var STORE_SVG =
+    '<svg class="product-card__store-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+    '<path d="M3 10l2-6h14l2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M5 10v10h14V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M9 20v-6h6v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    "</svg>";
+
   // Neutral stock photography (Unsplash) — no brand logos; split footwear so “formal shoes”
   // doesn’t reuse loud athletic sneaker shots.
   var IMG_POOLS = {
@@ -493,9 +500,14 @@
       img +
       '" alt="" loading="lazy" decoding="async" width="400" height="533" />' +
       "</div></div>" +
+      '<div class="product-card__meta-row">' +
       '<p class="product-card__time">' +
       CLOCK_SVG +
       ' <span class="product-card__eta">28 MINS</span></p>' +
+      '<span class="product-card__store" aria-hidden="true" title="Store">' +
+      STORE_SVG +
+      "</span>" +
+      "</div>" +
       '<h3 class="product-card__name">' +
       name +
       "</h3>" +
