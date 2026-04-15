@@ -697,46 +697,9 @@
     if (_warehouseStoresLoadPromise) return _warehouseStoresLoadPromise;
 
     _warehouseStoresLoadPromise = new Promise(function (resolve) {
-      // If XLSX is not available (CDN blocked), we can't parse the Excel.
-      if (typeof window.XLSX === "undefined") {
-        resolve(window.WAREHOUSE_STORES || []);
-        return;
-      }
-      fetch("Warehouse_Data.xls", { cache: "no-store" })
-        .then(function (res) {
-          if (!res.ok) throw new Error("Warehouse_Data.xls not found");
-          return res.arrayBuffer();
-        })
-        .then(function (buf) {
-          var wb = window.XLSX.read(buf, { type: "array" });
-          var sheetName = wb && wb.SheetNames && wb.SheetNames[0] ? wb.SheetNames[0] : null;
-          var ws = sheetName ? wb.Sheets[sheetName] : null;
-          if (!ws) return [];
-          var rows = window.XLSX.utils.sheet_to_json(ws, { defval: "" });
-          var stores = [];
-          for (var i = 0; i < rows.length; i++) {
-            var r = rows[i] || {};
-            var brand = (r.Brand || r.brand || "").toString().trim();
-            var fcId = (r.fc_id || r.FC_ID || r.fcId || r["fc id"] || "").toString().trim();
-            var lat = Number(r.latitude || r.lat || r.Latitude || "");
-            var lng = Number(r.longitude || r.lng || r.Longitude || "");
-            if (!brand || !fcId) continue;
-            if (isNaN(lat) || isNaN(lng)) {
-              // Keep record even without coords; it can still show up when Delivery By isn't applied.
-              lat = null;
-              lng = null;
-            }
-            stores.push({ brand: brand, fc_id: fcId, lat: lat, lng: lng });
-          }
-          window.WAREHOUSE_STORES = stores;
-          return stores;
-        })
-        .then(function (stores) {
-          resolve(stores || []);
-        })
-        .catch(function () {
-          resolve(window.WAREHOUSE_STORES || []);
-        });
+      // Store data is expected to be loaded via `warehouse-stores.js`.
+      // If it isn't present (cached HTML / missing script), fail gracefully.
+      resolve(window.WAREHOUSE_STORES || []);
     });
 
     return _warehouseStoresLoadPromise;
@@ -888,6 +851,17 @@
     items.sort(function (a, b) {
       // Always keep numeric-only names at the end.
       if (!!a.isNumericOnly !== !!b.isNumericOnly) return a.isNumericOnly ? 1 : -1;
+
+      // Push "ALBL..." entries towards the bottom of the list.
+      // These look like internal codes and otherwise dominate the top of A*.
+      var aUp = String(a.display || "").trim().toUpperCase();
+      var bUp = String(b.display || "").trim().toUpperCase();
+      var aIsAlbl =
+        aUp === "ALBL" || aUp.indexOf("ALBL ") === 0 || aUp.indexOf("ALBL-") === 0 || aUp.indexOf("ALBL_") === 0;
+      var bIsAlbl =
+        bUp === "ALBL" || bUp.indexOf("ALBL ") === 0 || bUp.indexOf("ALBL-") === 0 || bUp.indexOf("ALBL_") === 0;
+      if (aIsAlbl !== bIsAlbl) return aIsAlbl ? 1 : -1;
+
       var aa = String(a.alpha || "").toLowerCase();
       var bb = String(b.alpha || "").toLowerCase();
       var c = aa.localeCompare(bb, undefined, { sensitivity: "base" });
@@ -957,13 +931,14 @@
         }
         var eligible = eligibleOmuniStoresForBrand(stores, brandOverride);
         var ids = uniqueSortedStoreNames(eligible);
+        var totalStoresCount = eligible && eligible.length ? eligible.length : 0;
         var brandKeys = Object.keys(lifestyleBrandSelected || {});
         var deliveryKey = lifestyleDeliveryBy ? String(lifestyleDeliveryBy) : "";
         var hasLoc = !!getUserLatLng();
 
         if (metaEl) {
           var parts = [];
-          parts.push(ids.length + " store" + (ids.length === 1 ? "" : "s"));
+          parts.push(totalStoresCount + " store" + (totalStoresCount === 1 ? "" : "s"));
           if (brandOverride) parts.push("Brand: " + prettifyBrandLabel(brandOverride));
           else if (brandKeys.length) parts.push("Brand: " + brandKeys.join(", "));
           if (deliveryKey) parts.push("Delivery By: " + labelForLifestyleDeliveryBy(deliveryKey));

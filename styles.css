@@ -1601,7 +1601,7 @@ body.omuni-on .cat-tile__meta {
 .stores-modal__pill {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -1610,6 +1610,8 @@ body.omuni-on .cat-tile__meta {
   font-size: 0.82rem;
   color: var(--text);
   letter-spacing: 0.01em;
+  text-align: left;
+  width: 100%;
 }
 
 .stores-modal__empty {
