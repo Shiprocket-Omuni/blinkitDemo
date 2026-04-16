@@ -845,7 +845,7 @@
       var disp = parts.display || picked;
       if (!disp || seen[disp]) return;
       seen[disp] = true;
-      items.push({ display: disp, alpha: parts.alpha || disp, num: parts.num });
+      items.push({ display: disp, alpha: parts.alpha || disp, num: parts.num, isNumericOnly: !!parts.isNumericOnly });
     });
 
     items.sort(function (a, b) {
@@ -877,6 +877,46 @@
     });
   }
 
+  function hash32(str) {
+    // FNV-1a-ish 32-bit hash (stable, fast; good enough for deterministic sampling).
+    var s = String(str || "");
+    var h = 2166136261;
+    for (var i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+
+  function rand01FromSeed(seed) {
+    // 0..1 from a seed string
+    return (hash32(seed) % 100000) / 100000;
+  }
+
+  function deterministicSampleStoresForProduct(productKey, stores) {
+    var list = stores || [];
+    if (!productKey || !list.length) return list;
+
+    // Coverage ratio in [0.18, 0.78], deterministic per product.
+    var r = rand01FromSeed("coverage|" + productKey);
+    var ratio = 0.18 + r * 0.6;
+    var n = Math.max(1, Math.min(list.length, Math.round(list.length * ratio)));
+
+    // Deterministic ranking of stores for this productKey.
+    var ranked = list
+      .map(function (st) {
+        var sid = st && (st.fc_id || st.fcId || st.FC_ID) ? String(st.fc_id || st.fcId || st.FC_ID) : "";
+        return { st: st, score: hash32(productKey + "|" + sid) };
+      })
+      .sort(function (a, b) {
+        return a.score - b.score;
+      });
+
+    var out = new Array(n);
+    for (var i = 0; i < n; i++) out[i] = ranked[i].st;
+    return out;
+  }
+
   function normalizeBrandKey(brandRaw) {
     var b = String(brandRaw || "")
       .trim()
@@ -884,6 +924,8 @@
       .toUpperCase();
     // UI sometimes shows "BLACKBERRYS" while Excel has "BLACKBERRY".
     if (b === "BLACKBERRYS") return "BLACKBERRY";
+    // Excel uses SG_SPORTS but UI/catalog uses SG SPORTS.
+    if (b === "SG SPORTS") return "SG_SPORTS";
     return b;
   }
 
@@ -910,7 +952,7 @@
       document.body.classList.remove("stores-modal-open");
     }
 
-    function openWithBrand(brandOverride) {
+    function openWithBrand(brandOverride, productKey) {
       modal.hidden = false;
       document.body.classList.add("stores-modal-open");
       // Reset quickly
@@ -930,6 +972,10 @@
           return;
         }
         var eligible = eligibleOmuniStoresForBrand(stores, brandOverride);
+        // Store icon flow: sample per product so each catalog feels different.
+        if (productKey) {
+          eligible = deterministicSampleStoresForProduct(productKey, eligible);
+        }
         var ids = uniqueSortedStoreNames(eligible);
         var totalStoresCount = eligible && eligible.length ? eligible.length : 0;
         var brandKeys = Object.keys(lifestyleBrandSelected || {});
@@ -967,7 +1013,7 @@
     infoBtn.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
-      openWithBrand("");
+      openWithBrand("", "");
     });
 
     modal.querySelectorAll("[data-close]").forEach(function (el) {
@@ -986,9 +1032,13 @@
       if (!storeBtn) return;
       var card = storeBtn.closest ? storeBtn.closest(".product-card") : null;
       var brand = card ? String(card.getAttribute("data-brand") || "").trim() : "";
+      var pid = card ? String(card.getAttribute("data-id") || "").trim() : "";
+      var sel = card ? card.querySelector("[data-size-select]") : null;
+      var size = sel && sel.value ? String(sel.value).trim() : "";
+      var productKey = pid ? pid + (size ? "|" + size : "") : "";
       e.preventDefault();
       e.stopPropagation();
-      openWithBrand(brand);
+      openWithBrand(brand, productKey);
     });
   }
 
@@ -1003,7 +1053,7 @@
       var s = stores[i];
       if (!s || !s.brand) continue;
       var km = haversineKm(user.lat, user.lng, Number(s.lat), Number(s.lng));
-      var b = s.brand;
+      var b = normalizeBrandKey(s.brand);
       if (minKmByBrand[b] == null || km < minKmByBrand[b]) minKmByBrand[b] = km;
     }
     return { minKmByBrand: minKmByBrand };
@@ -1088,8 +1138,18 @@
       var card = cards[i];
       var name = (card.getAttribute("data-name") || "").toLowerCase();
       var okSearch = !lower || name.indexOf(lower) !== -1;
-      var b = card.getAttribute("data-brand") || "";
-      var okBrand = Object.keys(lifestyleBrandSelected).length === 0 || !!lifestyleBrandSelected[b];
+      var b = normalizeBrandKey(card.getAttribute("data-brand") || "");
+      var okBrand = true;
+      var selBrandKeys = Object.keys(lifestyleBrandSelected);
+      if (selBrandKeys.length > 0) {
+        okBrand = false;
+        for (var bi = 0; bi < selBrandKeys.length; bi++) {
+          if (normalizeBrandKey(selBrandKeys[bi]) === b) {
+            okBrand = true;
+            break;
+          }
+        }
+      }
       var ty = card.getAttribute("data-type") || "";
       var okType = Object.keys(lifestyleTypeSelected).length === 0 || !!lifestyleTypeSelected[ty];
       var okDelivery = true;
@@ -1248,7 +1308,16 @@
         for (var si = 0; si < stores.length; si++) {
           var st = stores[si];
           if (!st || !st.brand) continue;
-          if (brandKeys.length && !lifestyleBrandSelected[st.brand]) continue;
+          if (brandKeys.length) {
+            var okB = false;
+            for (var bk = 0; bk < brandKeys.length; bk++) {
+              if (normalizeBrandKey(brandKeys[bk]) === normalizeBrandKey(st.brand)) {
+                okB = true;
+                break;
+              }
+            }
+            if (!okB) continue;
+          }
           var skm = haversineKm(userLoc.lat, userLoc.lng, Number(st.lat), Number(st.lng));
           if (deliveryKeys.length === 0 || storeKmMatchesAnyDeliveryFilter(skm, deliveryKeys)) {
             wh += 1;
@@ -1262,7 +1331,9 @@
           wh = totalWh;
         } else {
           brandKeys.forEach(function (b) {
-            wh += byBrand[b] ? Number(byBrand[b]) : 0;
+            var key = normalizeBrandKey(b);
+            // Prefer exact match first, then normalized key
+            wh += byBrand[b] ? Number(byBrand[b]) : byBrand[key] ? Number(byBrand[key]) : 0;
           });
         }
       }
@@ -1295,7 +1366,7 @@
           for (var si2 = 0; si2 < stores2.length; si2++) {
             var st2 = stores2[si2];
             if (!st2 || !st2.brand) continue;
-            var b2 = st2.brand;
+            var b2 = normalizeBrandKey(st2.brand);
             totalStoresByBrand[b2] = (totalStoresByBrand[b2] || 0) + 1;
             var km2 = haversineKm(userLoc2.lat, userLoc2.lng, Number(st2.lat), Number(st2.lng));
             if (storeKmMatchesAnyDeliveryFilter(km2, deliveryKeys2)) {
@@ -1309,8 +1380,9 @@
         var alpha = 2.6;
         function brandCoverageFactor(brand) {
           if (!canScaleByStores) return 1;
-          var tot = totalStoresByBrand[brand] || 0;
-          var elig = eligibleStoresByBrand[brand] || 0;
+          var k = normalizeBrandKey(brand);
+          var tot = totalStoresByBrand[k] || 0;
+          var elig = eligibleStoresByBrand[k] || 0;
           if (tot <= 0) return 1; // best-effort fallback
           if (elig <= 0) return 0;
           var ratio = elig / tot;
@@ -1324,7 +1396,17 @@
 
         for (var i = 0; i < rows.length; i++) {
           var r = rows[i];
-          var okB = brandKeys2.length === 0 || !!lifestyleBrandSelected[r.brand];
+          var okB = true;
+          if (brandKeys2.length) {
+            okB = false;
+            var rb = normalizeBrandKey(r.brand);
+            for (var bk2 = 0; bk2 < brandKeys2.length; bk2++) {
+              if (normalizeBrandKey(brandKeys2[bk2]) === rb) {
+                okB = true;
+                break;
+              }
+            }
+          }
           var okT = typeKeys.length === 0 || !!lifestyleTypeSelected[r.type];
           if (!okB || !okT) continue;
 
@@ -1341,7 +1423,7 @@
             if (!minKmByBrand2) {
               okD2 = true;
             } else {
-              var mk2 = minKmByBrand2[r.brand];
+              var mk2 = minKmByBrand2[normalizeBrandKey(r.brand)];
               if (mk2 == null) okD2 = true;
               else okD2 = minKmMatchesAnyDeliveryFilter(mk2, deliveryKeys2);
             }
