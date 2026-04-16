@@ -3121,6 +3121,46 @@ body.checkout-open {
 
   .header__nav > .nav-benefits {
     border: 1px solid var(--border);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #555;
+  }
+
+  .header__nav > .nav-benefits:hover {
+    color: var(--text);
+    background: #f7f7f7;
+  }
+
+  /* View dropdown should behave like Account dropdown on mobile */
+  .header__nav > .nav-view-wrap {
+    margin: 0 12px;
+    width: auto;
+  }
+
+  .header__nav .nav-view-btn {
+    width: 100%;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .header__nav .nav-view-dropdown {
+    position: static;
+    left: auto;
+    top: auto;
+    min-width: 0;
+    width: 100%;
+    margin-top: 8px;
+    box-shadow: none;
+    border-radius: 12px;
+  }
+
+  .header__nav .nav-view-opt {
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 0.9rem;
   }
 
   .header__nav > .nav-account-wrap {
@@ -3376,19 +3416,21 @@ body.omuni-on .products-omuni-note {
   padding: 10px 12px;
   text-align: left;
   font: inherit;
-  font-size: 0.86rem;
-  font-weight: 700;
-  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #555;
   cursor: pointer;
 }
 
 .nav-view-opt:hover {
-  background: var(--bg-page);
+  background: #f7f7f7;
+  color: var(--text);
 }
 
 .nav-view-opt[aria-checked="true"] {
-  background: rgba(12, 131, 31, 0.1);
-  color: var(--green);
+  background: rgba(12, 131, 31, 0.08);
+  color: var(--green-dark);
+  font-weight: 700;
 }
 
 .nav-fulfillment-cta:hover {

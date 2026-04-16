@@ -9,12 +9,7 @@
 </head>
 <body class="omuni-app omuni-app--home">
   <p class="omuni-back-blinkit">
-    <label class="omuni-view-switch" aria-label="Switch view">
-      <select class="omuni-view-switch__select" id="omuniViewSwitch">
-        <option value="customer">Customer's View</option>
-        <option value="store" selected>Store's View</option>
-      </select>
-    </label>
+    <a href="../lifestyle-apparels.html" class="omuni-back-blinkit__link">← Back to Blinkit</a>
   </p>
   <div class="omuni-home-brand">
     <p class="omuni-home-brand__logo">Bata</p>
@@ -129,18 +124,6 @@
       Store
     </button>
   </nav>
-  <script>
-    (function () {
-      var sel = document.getElementById("omuniViewSwitch");
-      if (!sel) return;
-      sel.value = "store";
-      sel.addEventListener("change", function () {
-        var v = sel.value;
-        if (v === "customer") window.location.href = "../lifestyle-apparels.html";
-        else window.location.href = "index.html";
-      });
-    })();
-  </script>
   <script src="../blinkit-omuni-sync.js"></script>
   <script src="omuni-home-badges.js"></script>
 </body>

@@ -91,6 +91,8 @@ body.omuni-app {
   background-color: rgba(12, 131, 31, 0.14);
 }
 
+/* View dropdown removed on store pages (back link only). */
+
 .omuni-back-blinkit__link:active {
   background: rgba(12, 131, 31, 0.14);
 }
