@@ -3340,6 +3340,57 @@ body.omuni-on .products-omuni-note {
   transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.nav-view-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.nav-view-btn {
+  gap: 8px;
+}
+
+.nav-view-btn__chev {
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.nav-view-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 320;
+  min-width: 180px;
+  padding: 6px;
+  margin: 0;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.nav-view-opt {
+  width: 100%;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  padding: 10px 12px;
+  text-align: left;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.nav-view-opt:hover {
+  background: var(--bg-page);
+}
+
+.nav-view-opt[aria-checked="true"] {
+  background: rgba(12, 131, 31, 0.1);
+  color: var(--green);
+}
+
 .nav-fulfillment-cta:hover {
   background: rgba(12, 131, 31, 0.14);
   border-color: var(--green-dark);

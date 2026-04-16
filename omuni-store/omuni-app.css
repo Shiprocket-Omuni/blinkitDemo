@@ -62,6 +62,35 @@ body.omuni-app {
   text-decoration: none;
 }
 
+.omuni-view-switch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.omuni-view-switch__select {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid #0c831f;
+  background: rgba(12, 131, 31, 0.08);
+  color: #0a6b19;
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 8px 36px 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  line-height: 1.1;
+  background-image: linear-gradient(45deg, transparent 50%, #0a6b19 50%),
+    linear-gradient(135deg, #0a6b19 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+.omuni-view-switch__select:active {
+  background-color: rgba(12, 131, 31, 0.14);
+}
+
 .omuni-back-blinkit__link:active {
   background: rgba(12, 131, 31, 0.14);
 }

@@ -193,6 +193,83 @@
     closeAccountDropdown();
   });
 
+  // ----- View switch dropdown (Customer / Store) -----
+  var navViewWrap = document.getElementById("navViewWrap");
+  var navViewBtn = document.getElementById("navViewBtn");
+  var navViewDropdown = document.getElementById("navViewDropdown");
+  var navViewBtnLabel = document.getElementById("navViewBtnLabel");
+
+  function closeViewDropdown() {
+    if (!navViewDropdown || !navViewBtn) return;
+    navViewDropdown.hidden = true;
+    navViewBtn.setAttribute("aria-expanded", "false");
+  }
+
+  function openViewDropdown() {
+    if (!navViewDropdown || !navViewBtn) return;
+    navViewDropdown.hidden = false;
+    navViewBtn.setAttribute("aria-expanded", "true");
+  }
+
+  function toggleViewDropdown() {
+    if (!navViewDropdown || !navViewBtn) return;
+    if (navViewDropdown.hidden) openViewDropdown();
+    else closeViewDropdown();
+  }
+
+  function setViewSelection(view) {
+    if (!navViewDropdown) return;
+    var v = view === "store" ? "store" : "customer";
+    if (navViewBtnLabel) navViewBtnLabel.textContent = v === "store" ? "Store's View" : "Customer's View";
+    navViewDropdown.querySelectorAll(".nav-view-opt").forEach(function (btn) {
+      var is = btn.getAttribute("data-view") === v;
+      btn.setAttribute("aria-checked", is ? "true" : "false");
+    });
+  }
+
+  function currentViewFromUrl() {
+    try {
+      var p = window.location && window.location.pathname ? String(window.location.pathname) : "";
+      return p.indexOf("/omuni-store/") !== -1 ? "store" : "customer";
+    } catch (e) {
+      return "customer";
+    }
+  }
+
+  if (navViewBtn && navViewDropdown) {
+    // Auto-select based on page (customer pages -> customer).
+    setViewSelection(currentViewFromUrl());
+
+    navViewBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleViewDropdown();
+    });
+
+    navViewDropdown.addEventListener("click", function (e) {
+      var opt = e.target && e.target.closest ? e.target.closest(".nav-view-opt") : null;
+      if (!opt) return;
+      e.preventDefault();
+      var v = opt.getAttribute("data-view") || "customer";
+      closeViewDropdown();
+      closeHeaderMenu();
+      setViewSelection(v);
+      if (v === "store") {
+        window.location.href = "omuni-store/index.html";
+      }
+    });
+
+    document.addEventListener(
+      "click",
+      function (e) {
+        if (!navViewDropdown || navViewDropdown.hidden) return;
+        if (navViewWrap && navViewWrap.contains(e.target)) return;
+        closeViewDropdown();
+      },
+      true
+    );
+  }
+
   var omuniBenefitsSlide = document.getElementById("omuniSlideBenefits");
   var omuniBenefitsOpen = document.getElementById("omuniBenefitsOpen");
   var omuniPresentationClose = document.getElementById("omuniPresentationClose");
