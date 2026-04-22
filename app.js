@@ -548,11 +548,59 @@
     lifestyleFiltersRoot.querySelectorAll('[id^="lifestyleTrigger"]').forEach(function (t) {
       t.setAttribute("aria-expanded", "false");
     });
+    hideLifestyleBackdrop();
   }
 
   // iOS Safari + overflow scrolling can render fixed-position dropdowns behind content.
   // We "portal" the active panel to <body> on mobile and restore it on close.
   var _lifestylePanelPortal = new WeakMap();
+  var _lifestyleBackdropEl = null;
+  function ensureLifestyleBackdrop() {
+    if (_lifestyleBackdropEl) return _lifestyleBackdropEl;
+    if (!document || !document.body) return null;
+    var el = document.createElement("div");
+    el.className = "lifestyle-dd-backdrop";
+    el.hidden = true;
+    el.setAttribute("aria-hidden", "true");
+    el.addEventListener(
+      "click",
+      function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeAllLifestyleDropdowns();
+      },
+      { passive: false }
+    );
+    // Block touchmove so background doesn't scroll on iOS.
+    el.addEventListener(
+      "touchmove",
+      function (e) {
+        e.preventDefault();
+      },
+      { passive: false }
+    );
+    document.body.appendChild(el);
+    _lifestyleBackdropEl = el;
+    return el;
+  }
+
+  function showLifestyleBackdrop() {
+    if (window.innerWidth > 900) return;
+    var el = ensureLifestyleBackdrop();
+    if (!el) return;
+    el.hidden = false;
+    try {
+      document.body.classList.add("lifestyle-dd-open");
+    } catch (e) {}
+  }
+
+  function hideLifestyleBackdrop() {
+    if (_lifestyleBackdropEl) _lifestyleBackdropEl.hidden = true;
+    try {
+      document.body.classList.remove("lifestyle-dd-open");
+    } catch (e) {}
+  }
+
   function restoreLifestylePanel(panel) {
     if (!panel) return;
     var rec = _lifestylePanelPortal.get(panel);
@@ -599,6 +647,8 @@
       panel.setAttribute("data-portal", "1");
       document.body.appendChild(panel);
     }
+
+    showLifestyleBackdrop();
 
     panel.style.position = "fixed";
     var offTop = vv ? vv.offsetTop || 0 : 0;

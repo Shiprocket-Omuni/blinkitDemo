@@ -46,6 +46,11 @@ body {
   padding-right: env(safe-area-inset-right, 0);
 }
 
+/* When lifestyle filter dropdown is open, lock background scroll (app-like). */
+body.lifestyle-dd-open {
+  overflow: hidden;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -1338,6 +1343,15 @@ body.omuni-on .cat-tile__meta {
   border: 1px solid var(--border);
   border-radius: 12px;
   box-shadow: var(--shadow-card);
+}
+
+/* Full-screen backdrop for mobile lifestyle dropdowns (prevents accidental scroll/interaction). */
+.lifestyle-dd-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: rgba(15, 15, 20, 0.28);
+  touch-action: none;
 }
 
 .lifestyle-filter-panel--wide {
