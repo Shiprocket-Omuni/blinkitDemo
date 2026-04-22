@@ -3003,9 +3003,7 @@ body.stores-modal-open {
 
 /* Mobile filter dropdowns: lock background scroll while open (prevents drift/misalignment on Android/iOS). */
 body.lifestyle-dd-open {
-  overflow: hidden;
-  overscroll-behavior: none;
-  touch-action: none;
+  /* Scroll locking disabled per user request */
 }
 
 @media (max-width: 900px) {
