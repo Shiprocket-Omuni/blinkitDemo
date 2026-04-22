@@ -46,11 +46,6 @@ body {
   padding-right: env(safe-area-inset-right, 0);
 }
 
-/* When lifestyle filter dropdown is open, lock background scroll (app-like). */
-body.lifestyle-dd-open {
-  overflow: hidden;
-}
-
 a {
   color: inherit;
   text-decoration: none;
@@ -1345,18 +1340,31 @@ body.omuni-on .cat-tile__meta {
   box-shadow: var(--shadow-card);
 }
 
-/* Full-screen backdrop for mobile lifestyle dropdowns (prevents accidental scroll/interaction). */
-.lifestyle-dd-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 900;
-  background: rgba(15, 15, 20, 0.28);
-  touch-action: none;
-}
-
 .lifestyle-filter-panel--wide {
   min-width: 240px;
   max-width: min(92vw, 340px);
+}
+
+/* iOS Safari: fixed-position dropdowns inside momentum scrollers can paint under later content.
+   Force panels into their own composited layer and avoid the problematic scroll mode. */
+@supports (-webkit-touch-callout: none) {
+  .lifestyle-filters__bar {
+    -webkit-overflow-scrolling: auto;
+  }
+
+  .lifestyle-filter-panel {
+    z-index: 99999;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+
+  /* Ensure the catalog grid doesn't become a higher paint layer than the open dropdown. */
+  .products,
+  .product-row,
+  .product-card {
+    position: relative;
+    z-index: 0;
+  }
 }
 
 .lifestyle-filter-search {

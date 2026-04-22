@@ -548,79 +548,10 @@
     lifestyleFiltersRoot.querySelectorAll('[id^="lifestyleTrigger"]').forEach(function (t) {
       t.setAttribute("aria-expanded", "false");
     });
-    hideLifestyleBackdrop();
-  }
-
-  // iOS Safari + overflow scrolling can render fixed-position dropdowns behind content.
-  // We "portal" the active panel to <body> on mobile and restore it on close.
-  var _lifestylePanelPortal = new WeakMap();
-  var _lifestyleBackdropEl = null;
-  function ensureLifestyleBackdrop() {
-    if (_lifestyleBackdropEl) return _lifestyleBackdropEl;
-    if (!document || !document.body) return null;
-    var el = document.createElement("div");
-    el.className = "lifestyle-dd-backdrop";
-    el.hidden = true;
-    el.setAttribute("aria-hidden", "true");
-    el.addEventListener(
-      "click",
-      function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        closeAllLifestyleDropdowns();
-      },
-      { passive: false }
-    );
-    // Block touchmove so background doesn't scroll on iOS.
-    el.addEventListener(
-      "touchmove",
-      function (e) {
-        e.preventDefault();
-      },
-      { passive: false }
-    );
-    document.body.appendChild(el);
-    _lifestyleBackdropEl = el;
-    return el;
-  }
-
-  function showLifestyleBackdrop() {
-    if (window.innerWidth > 900) return;
-    var el = ensureLifestyleBackdrop();
-    if (!el) return;
-    el.hidden = false;
-    try {
-      document.body.classList.add("lifestyle-dd-open");
-    } catch (e) {}
-  }
-
-  function hideLifestyleBackdrop() {
-    if (_lifestyleBackdropEl) _lifestyleBackdropEl.hidden = true;
-    try {
-      document.body.classList.remove("lifestyle-dd-open");
-    } catch (e) {}
-  }
-
-  function restoreLifestylePanel(panel) {
-    if (!panel) return;
-    var rec = _lifestylePanelPortal.get(panel);
-    if (!rec) return;
-    try {
-      if (rec.nextSibling && rec.nextSibling.parentNode === rec.parent) {
-        rec.parent.insertBefore(panel, rec.nextSibling);
-      } else {
-        rec.parent.appendChild(panel);
-      }
-    } catch (e) {
-      // best-effort
-    }
-    panel.removeAttribute("data-portal");
-    _lifestylePanelPortal.delete(panel);
   }
 
   function resetLifestylePanelPosition(panel) {
     if (!panel) return;
-    restoreLifestylePanel(panel);
     panel.style.position = "";
     panel.style.left = "";
     panel.style.top = "";
@@ -636,31 +567,19 @@
     if (window.innerWidth > 900) return;
 
     var rect = trigger.getBoundingClientRect();
-    var vv = window.visualViewport || null;
-    var vw = Math.max(320, (vv ? vv.width : window.innerWidth) || window.innerWidth || 0);
+    var vw = Math.max(320, window.innerWidth || 0);
     var margin = 12;
     var maxW = vw - margin * 2;
 
-    // Portal to body on mobile to avoid iOS stacking/compositing issues.
-    if (!panel.hasAttribute("data-portal") && document.body) {
-      _lifestylePanelPortal.set(panel, { parent: panel.parentNode, nextSibling: panel.nextSibling });
-      panel.setAttribute("data-portal", "1");
-      document.body.appendChild(panel);
-    }
-
-    showLifestyleBackdrop();
-
     panel.style.position = "fixed";
-    var offTop = vv ? vv.offsetTop || 0 : 0;
-    var offLeft = vv ? vv.offsetLeft || 0 : 0;
-    panel.style.top = Math.round(rect.bottom + 8 + offTop) + "px";
+    panel.style.top = Math.round(rect.bottom + 8) + "px";
     panel.style.maxHeight = "min(60vh, 420px)";
     panel.style.maxWidth = maxW + "px";
     panel.style.width = "";
 
     // Measure after applying fixed so we can clamp left.
     var pw = panel.getBoundingClientRect().width || 240;
-    var left = rect.left + offLeft;
+    var left = rect.left;
     if (left + pw > vw - margin) left = vw - margin - pw;
     if (left < margin) left = margin;
     panel.style.left = Math.round(left) + "px";
@@ -1631,49 +1550,6 @@
     initLifestylePanelSearch("lifestyleSearchBrand", "lifestylePanelBrand");
     initLifestylePanelSearch("lifestyleSearchType", "lifestylePanelType");
 
-    function handleLifestyleOptionClick(opt) {
-      if (!opt) return false;
-      var panel = opt.closest(".lifestyle-filter-panel");
-      var shouldClose = false;
-      if (opt.hasAttribute("data-sort-value")) {
-        var sv = opt.getAttribute("data-sort-value") || "relevance";
-        if (lifestyleSortEl) lifestyleSortEl.value = sv;
-        markActiveInPanel(panel, "data-sort-value", sv);
-        shouldClose = true;
-      } else if (opt.hasAttribute("data-brand-filter")) {
-        var bv = opt.getAttribute("data-brand-filter") || "";
-        if (bv === "all") {
-          lifestyleBrandSelected = {};
-        } else {
-          if (lifestyleBrandSelected[bv]) delete lifestyleBrandSelected[bv];
-          else lifestyleBrandSelected[bv] = true;
-        }
-        syncMultiSelectPanel(panel, "data-brand-filter", lifestyleBrandSelected);
-      } else if (opt.hasAttribute("data-type-filter")) {
-        var tv = opt.getAttribute("data-type-filter") || "";
-        if (tv === "all") {
-          lifestyleTypeSelected = {};
-        } else {
-          if (lifestyleTypeSelected[tv]) delete lifestyleTypeSelected[tv];
-          else lifestyleTypeSelected[tv] = true;
-        }
-        syncMultiSelectPanel(panel, "data-type-filter", lifestyleTypeSelected);
-      } else if (opt.hasAttribute("data-delivery-by")) {
-        var dv = opt.getAttribute("data-delivery-by") || "";
-        lifestyleDeliveryBy = dv === "all" ? "" : dv;
-        window.lifestyleDeliveryBy = lifestyleDeliveryBy;
-        markActiveInPanel(panel, "data-delivery-by", dv === "all" ? "all" : dv);
-        shouldClose = true;
-      } else {
-        return false;
-      }
-      updateLifestyleFilterPillStates();
-      updateLifestyleStats();
-      applySearchFilter();
-      if (shouldClose) closeAllLifestyleDropdowns();
-      return true;
-    }
-
     lifestyleFiltersRoot.addEventListener("click", function (e) {
       var clearBtn = e.target && e.target.closest && e.target.closest("#lifestyleClearFilters");
       if (clearBtn) {
@@ -1688,7 +1564,42 @@
       var opt = e.target.closest(".lifestyle-filter-option");
       if (opt) {
         e.preventDefault();
-        handleLifestyleOptionClick(opt);
+        var panel = opt.closest(".lifestyle-filter-panel");
+        var shouldClose = false;
+        if (opt.hasAttribute("data-sort-value")) {
+          var sv = opt.getAttribute("data-sort-value") || "relevance";
+          if (lifestyleSortEl) lifestyleSortEl.value = sv;
+          markActiveInPanel(panel, "data-sort-value", sv);
+          shouldClose = true;
+        } else if (opt.hasAttribute("data-brand-filter")) {
+          var bv = opt.getAttribute("data-brand-filter") || "";
+          if (bv === "all") {
+            lifestyleBrandSelected = {};
+          } else {
+            if (lifestyleBrandSelected[bv]) delete lifestyleBrandSelected[bv];
+            else lifestyleBrandSelected[bv] = true;
+          }
+          syncMultiSelectPanel(panel, "data-brand-filter", lifestyleBrandSelected);
+        } else if (opt.hasAttribute("data-type-filter")) {
+          var tv = opt.getAttribute("data-type-filter") || "";
+          if (tv === "all") {
+            lifestyleTypeSelected = {};
+          } else {
+            if (lifestyleTypeSelected[tv]) delete lifestyleTypeSelected[tv];
+            else lifestyleTypeSelected[tv] = true;
+          }
+          syncMultiSelectPanel(panel, "data-type-filter", lifestyleTypeSelected);
+        } else if (opt.hasAttribute("data-delivery-by")) {
+          var dv = opt.getAttribute("data-delivery-by") || "";
+          lifestyleDeliveryBy = dv === "all" ? "" : dv;
+          window.lifestyleDeliveryBy = lifestyleDeliveryBy;
+          markActiveInPanel(panel, "data-delivery-by", dv === "all" ? "all" : dv);
+          shouldClose = true;
+        }
+        updateLifestyleFilterPillStates();
+        updateLifestyleStats();
+        applySearchFilter();
+        if (shouldClose) closeAllLifestyleDropdowns();
         return;
       }
 
@@ -1711,18 +1622,6 @@
           }
         }
       }
-    });
-
-    // When a panel is portaled to <body>, clicks won't bubble through `lifestyleFiltersRoot`.
-    // Handle option clicks globally for those cases.
-    document.addEventListener("click", function (e) {
-      var opt2 = e.target && e.target.closest ? e.target.closest(".lifestyle-filter-option") : null;
-      if (!opt2) return;
-      var panel2 = opt2.closest && opt2.closest(".lifestyle-filter-panel");
-      if (!panel2 || !panel2.hasAttribute("data-portal")) return;
-      e.preventDefault();
-      e.stopPropagation();
-      handleLifestyleOptionClick(opt2);
     });
 
     // Close open dropdown when clicking anywhere outside the active dropdown (even within the bar).
