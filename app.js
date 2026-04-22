@@ -575,14 +575,40 @@
     var offTop = vv && typeof vv.offsetTop === "number" ? vv.offsetTop : 0;
     var offLeft = vv && typeof vv.offsetLeft === "number" ? vv.offsetLeft : 0;
     var vw = Math.max(320, (vv && vv.width ? vv.width : window.innerWidth) || 0);
+    var vh = Math.max(320, (vv && vv.height ? vv.height : window.innerHeight) || 0);
     var margin = 12;
     var maxW = vw - margin * 2;
 
     panel.style.position = "fixed";
-    panel.style.top = Math.round(rect.bottom + 8 + offTop) + "px";
-    panel.style.maxHeight = "min(60vh, 420px)";
+    // Keep dropdown within the visible (visual) viewport, especially on Android when the keyboard is open.
+    var desiredTop = rect.bottom + 8 + offTop;
+    var vpTop = offTop;
+    var vpBottom = offTop + vh;
+    var maxPanelH = Math.min(420, Math.max(180, vh - margin * 2));
+
+    // First, try placing below.
+    var availableBelow = vpBottom - desiredTop - margin;
+    var placeBelow = availableBelow >= 180;
+
+    panel.style.maxHeight = Math.round(Math.min(maxPanelH, placeBelow ? availableBelow : maxPanelH)) + "px";
     panel.style.maxWidth = maxW + "px";
     panel.style.width = "";
+
+    // Measure with updated maxHeight to decide final top.
+    var ph = panel.getBoundingClientRect().height || 240;
+    var top;
+    if (placeBelow) {
+      top = desiredTop;
+      // Clamp if still overflowing (edge cases).
+      if (top + ph > vpBottom - margin) top = Math.max(vpTop + margin, vpBottom - margin - ph);
+    } else {
+      // Not enough room below (keyboard open) -> open upwards.
+      top = rect.top + offTop - 8 - ph;
+      if (top < vpTop + margin) top = vpTop + margin;
+    }
+
+    panel.style.top = Math.round(top) + "px";
+    panel.style.maxWidth = maxW + "px";
 
     // Measure after applying fixed so we can clamp left.
     var pw = panel.getBoundingClientRect().width || 240;
