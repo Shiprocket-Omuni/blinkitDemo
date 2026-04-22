@@ -1652,20 +1652,10 @@
     // Scroll lock for filter dropdowns (mobile). Prevents page scroll while dropdown open, which
     // otherwise causes drift/misalignment on Android with keyboard + dynamic viewport changes.
     (function initLifestyleDropdownScrollLock() {
-      var isIOS = false;
-      try {
-        var ua = navigator.userAgent || "";
-        isIOS = /iPad|iPhone|iPod/i.test(ua);
-      } catch (e0) {
-        isIOS = false;
-      }
       var scrollY = 0;
       var touchGuardOn = false;
 
       function lock() {
-        // iOS needs body position:fixed to truly lock background scroll.
-        // Android/WebView can get "layout jump" when the keyboard opens if we do this.
-        if (!isIOS) return;
         try {
           scrollY = window.scrollY || window.pageYOffset || 0;
           document.body.style.position = "fixed";
@@ -1677,7 +1667,6 @@
       }
 
       function unlock() {
-        if (!isIOS) return;
         try {
           document.body.style.position = "";
           document.body.style.top = "";
@@ -1698,15 +1687,12 @@
       function enableTouchGuard() {
         if (touchGuardOn) return;
         touchGuardOn = true;
-        if (isIOS) {
-          document.addEventListener("touchmove", touchMoveGuard, { passive: false });
-        }
+        document.addEventListener("touchmove", touchMoveGuard, { passive: false });
       }
 
       function disableTouchGuard() {
         if (!touchGuardOn) return;
         touchGuardOn = false;
-        if (!isIOS) return;
         try {
           document.removeEventListener("touchmove", touchMoveGuard, { passive: false });
         } catch (e) {
@@ -1735,8 +1721,7 @@
     updateLifestyleFilterPillStates();
     updateLifestyleStats();
 
-    initLifestylePanelSearch("lifestyleSearchBrand", "lifestylePanelBrand");
-    initLifestylePanelSearch("lifestyleSearchType", "lifestylePanelType");
+    // Brand/Type dropdown search inputs removed (mobile UX stability).
 
     lifestyleFiltersRoot.addEventListener("click", function (e) {
       var clearBtn = e.target && e.target.closest && e.target.closest("#lifestyleClearFilters");
@@ -1876,60 +1861,6 @@
     vv.addEventListener("resize", repositionOpenPanel, { passive: true });
     vv.addEventListener("scroll", repositionOpenPanel, { passive: true });
   })();
-
-  // Android/in-app browsers: keyboard open often triggers unreliable visualViewport events.
-  // Reposition the open dropdown on resize + focus, so the panel stays anchored.
-  function repositionOpenLifestyleDropdown() {
-    if (!lifestyleFiltersRoot) return;
-    var openTrigger = lifestyleFiltersRoot.querySelector('[id^="lifestyleTrigger"][aria-expanded="true"]');
-    if (!openTrigger) return;
-    var dd = openTrigger.closest(".lifestyle-filter-dd");
-    var p = dd ? dd.querySelector(".lifestyle-filter-panel") : null;
-    if (!p || p.hidden) return;
-    positionLifestylePanel(openTrigger, p);
-  }
-
-  window.addEventListener(
-    "resize",
-    function () {
-      try {
-        window.requestAnimationFrame(repositionOpenLifestyleDropdown);
-      } catch (e) {
-        repositionOpenLifestyleDropdown();
-      }
-    },
-    { passive: true }
-  );
-
-  window.addEventListener(
-    "orientationchange",
-    function () {
-      // Some Android browsers fire orientationchange without a reliable resize timing.
-      window.setTimeout(repositionOpenLifestyleDropdown, 60);
-      window.setTimeout(repositionOpenLifestyleDropdown, 200);
-    },
-    { passive: true }
-  );
-
-  document.addEventListener(
-    "focusin",
-    function (e) {
-      // When user taps the dropdown search input, the keyboard opens and viewport changes.
-      // Reposition after a couple frames to allow the viewport metrics to settle.
-      var t = e && e.target ? e.target : null;
-      if (!t || !t.closest) return;
-      if (!t.closest(".lifestyle-filter-panel")) return;
-      try {
-        window.requestAnimationFrame(function () {
-          repositionOpenLifestyleDropdown();
-          window.requestAnimationFrame(repositionOpenLifestyleDropdown);
-        });
-      } catch (e2) {
-        repositionOpenLifestyleDropdown();
-      }
-    },
-    true
-  );
   if (lifestyleSortEl) {
     lifestyleSortEl.addEventListener("change", function () {
       var v = lifestyleSortEl.value;
