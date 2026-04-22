@@ -1034,6 +1034,13 @@
     return b;
   }
 
+  function normalizeTypeKey(typeRaw) {
+    return String(typeRaw || "")
+      .trim()
+      .replace(/\s+/g, " ")
+      .toLowerCase();
+  }
+
   function prettifyBrandLabel(brandRaw) {
     var b = String(brandRaw || "").trim();
     if (!b) return "";
@@ -1313,7 +1320,18 @@
         }
       }
       var ty = card.getAttribute("data-type") || "";
-      var okType = Object.keys(lifestyleTypeSelected).length === 0 || !!lifestyleTypeSelected[ty];
+      var okType = true;
+      var selTypeKeys = Object.keys(lifestyleTypeSelected);
+      if (selTypeKeys.length > 0) {
+        okType = false;
+        var tyNorm = normalizeTypeKey(ty);
+        for (var ti = 0; ti < selTypeKeys.length; ti++) {
+          if (normalizeTypeKey(selTypeKeys[ti]) === tyNorm) {
+            okType = true;
+            break;
+          }
+        }
+      }
       var okDelivery = true;
       if (delKeysFacet.length > 0) {
         // If we don't know the user's lat/lng (or mapping missing), don't hide everything.
@@ -1569,7 +1587,17 @@
               }
             }
           }
-          var okT = typeKeys.length === 0 || !!lifestyleTypeSelected[r.type];
+          var okT = true;
+          if (typeKeys.length > 0) {
+            okT = false;
+            var rt = normalizeTypeKey(r.type);
+            for (var tk = 0; tk < typeKeys.length; tk++) {
+              if (normalizeTypeKey(typeKeys[tk]) === rt) {
+                okT = true;
+                break;
+              }
+            }
+          }
           if (!okB || !okT) continue;
 
           var base = Number(r.count) || 0;
