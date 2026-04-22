@@ -575,40 +575,28 @@
     var offTop = vv && typeof vv.offsetTop === "number" ? vv.offsetTop : 0;
     var offLeft = vv && typeof vv.offsetLeft === "number" ? vv.offsetLeft : 0;
     var vw = Math.max(320, (vv && vv.width ? vv.width : window.innerWidth) || 0);
-    var vh = Math.max(320, (vv && vv.height ? vv.height : window.innerHeight) || 0);
+    var vh = Math.max(240, (vv && vv.height ? vv.height : window.innerHeight) || 0);
     var margin = 12;
     var maxW = vw - margin * 2;
 
     panel.style.position = "fixed";
-    // Keep dropdown within the visible (visual) viewport, especially on Android when the keyboard is open.
-    var desiredTop = rect.bottom + 8 + offTop;
-    var vpTop = offTop;
-    var vpBottom = offTop + vh;
-    var maxPanelH = Math.min(420, Math.max(180, vh - margin * 2));
+    // Keep the panel visible above the keyboard / URL bar changes (Android + iOS).
+    var minTop = offTop + margin;
+    var maxBottom = offTop + vh - margin;
+    var topPx = rect.bottom + 8 + offTop;
+    // If the trigger itself is too low (keyboard open), pull the panel upward.
+    // Reserve at least 140px of usable panel height.
+    var minPanelH = 140;
+    if (topPx + minPanelH > maxBottom) {
+      topPx = maxBottom - minPanelH;
+    }
+    if (topPx < minTop) topPx = minTop;
+    panel.style.top = Math.round(topPx) + "px";
 
-    // First, try placing below.
-    var availableBelow = vpBottom - desiredTop - margin;
-    var placeBelow = availableBelow >= 180;
-
-    panel.style.maxHeight = Math.round(Math.min(maxPanelH, placeBelow ? availableBelow : maxPanelH)) + "px";
+    var maxHpx = Math.max(minPanelH, Math.min(420, Math.floor(maxBottom - topPx)));
+    panel.style.maxHeight = maxHpx + "px";
     panel.style.maxWidth = maxW + "px";
     panel.style.width = "";
-
-    // Measure with updated maxHeight to decide final top.
-    var ph = panel.getBoundingClientRect().height || 240;
-    var top;
-    if (placeBelow) {
-      top = desiredTop;
-      // Clamp if still overflowing (edge cases).
-      if (top + ph > vpBottom - margin) top = Math.max(vpTop + margin, vpBottom - margin - ph);
-    } else {
-      // Not enough room below (keyboard open) -> open upwards.
-      top = rect.top + offTop - 8 - ph;
-      if (top < vpTop + margin) top = vpTop + margin;
-    }
-
-    panel.style.top = Math.round(top) + "px";
-    panel.style.maxWidth = maxW + "px";
 
     // Measure after applying fixed so we can clamp left.
     var pw = panel.getBoundingClientRect().width || 240;
