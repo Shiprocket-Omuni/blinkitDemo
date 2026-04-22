@@ -1695,7 +1695,8 @@
           positionLifestylePanel(trigger, p);
           var searchInput = p.querySelector(".lifestyle-filter-search__input");
           if (searchInput) {
-            searchInput.focus();
+            // Important for mobile UX (Android/iOS): don't auto-open the keyboard.
+            // Only open keyboard when user explicitly taps the search box.
             filterLifestylePanelOptions(p, searchInput.value);
           }
         }
