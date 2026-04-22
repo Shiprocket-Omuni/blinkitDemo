@@ -31,6 +31,7 @@
 html {
   scroll-behavior: smooth;
   overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -3976,6 +3977,20 @@ body.account-page {
 
 @media (max-width: 640px) {
   .search__input {
+    font-size: 16px;
+  }
+
+  /* iOS Safari zooms on focus when font-size < 16px (dropdown search, modals, checkout inputs). */
+  .lifestyle-filter-search__input,
+  .loc-modal__pincode-input,
+  .modal__input,
+  .field__input,
+  input[type="text"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="number"],
+  textarea,
+  select {
     font-size: 16px;
   }
 
